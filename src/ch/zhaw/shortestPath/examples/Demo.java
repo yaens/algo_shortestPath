@@ -1,4 +1,4 @@
-package ch.zhaw.shortestPath;
+package ch.zhaw.shortestPath.examples;
 
 import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
