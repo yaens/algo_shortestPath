@@ -1,4 +1,4 @@
-package ch.zhaw.shortestPath.view;
+package ch.zhaw.shortestPath.model;
 
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.SurfaceCircle;

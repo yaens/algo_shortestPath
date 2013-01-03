@@ -9,6 +9,7 @@ import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.SurfaceCircle;
 import gov.nasa.worldwind.render.SurfaceShape;
+import gov.nasa.worldwindx.examples.util.DirectedPath;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -23,7 +24,7 @@ public class ConnectorBuilder extends AVListImpl
     private boolean armed = false;
     private ArrayList<Position> positions = new ArrayList<Position>();
     private final RenderableLayer layer;
-    private final Polyline line;
+    private final DirectedPath line;
     private boolean active = false;
 
     /**
@@ -34,19 +35,12 @@ public class ConnectorBuilder extends AVListImpl
      * @param lineLayer the layer holding the polyline. May be null, in which case a new layer is created.
      * @param polyline  the polyline object to build. May be null, in which case a new polyline is created.
      */
-    public ConnectorBuilder(final WorldWindow wwd, RenderableLayer lineLayer, Polyline polyline)
+    public ConnectorBuilder(final WorldWindow wwd, RenderableLayer lineLayer)
     {
         this.wwd = wwd;
 
-        if (polyline != null)
-        {
-            line = polyline;
-        }
-        else
-        {
-            this.line = new Polyline();
-            this.line.setFollowTerrain(true);
-        }
+        this.line = new DirectedPath();
+            //this.line.setFollowTerrain(true);
         
         this.layer = lineLayer != null ? lineLayer : new RenderableLayer();
         this.layer.addRenderable(this.line);
@@ -137,7 +131,7 @@ public class ConnectorBuilder extends AVListImpl
      *
      * @return the layer holding the polyline.
      */
-    public Polyline getLine()
+    public DirectedPath getLine()
     {
         return this.line;
     }

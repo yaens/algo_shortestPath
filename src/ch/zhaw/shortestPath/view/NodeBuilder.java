@@ -17,6 +17,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.zhaw.shortestPath.model.Node;
+
+
 public class NodeBuilder extends AVListImpl
 {
 	private Node node;
