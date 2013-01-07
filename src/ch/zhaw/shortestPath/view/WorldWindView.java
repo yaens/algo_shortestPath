@@ -10,6 +10,7 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.SurfaceCircle;
+import gov.nasa.worldwind.layers.*;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -20,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -29,34 +29,6 @@ import javax.swing.JScrollPane;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-/**
- * A utility class to interactively build a polyline. When armed, the class monitors mouse events and adds new positions
- * to a polyline as the user identifies them. The interaction sequence for creating a line is as follows: <ul> <li> Arm
- * the line builder by calling its {@link #setArmed(boolean)} method with an argument of true. </li> <li> Place the
- * cursor at the first desired polyline position. Press and release mouse button one. </li> <li> Press button one near
- * the next desired position, drag the mouse to the exact position, then release the button. The proposed line segment
- * will echo while the mouse is dragged. Continue selecting new positions this way until the polyline contains all
- * desired positions. </li> <li> Disarm the <code>LineBuilder</code> object by calling its {@link #setArmed(boolean)}
- * method with an argument of false. </li> </ul>
- * <p/>
- * While the line builder is armed, pressing and immediately releasing mouse button one while also pressing the control
- * key (Ctl) removes the last position from the polyline. </p>
- * <p/>
- * Mouse events the line builder acts on while armed are marked as consumed. These events are mouse pressed, released,
- * clicked and dragged. These events are not acted on while the line builder is not armed. The builder can be
- * continuously armed and rearmed to allow intervening maneuvering of the globe while building a polyline. A user can
- * add positions, pause entry, maneuver the view, then continue entering positions. </p>
- * <p/>
- * Arming and disarming the line builder does not change the contents or attributes of the line builder's layer. </p>
- * <p/>
- * The polyline and a layer containing it may be specified when a <code>LineBuilder</code> is constructed. </p>
- * <p/>
- * This class contains a <code>main</code> method implementing an example program illustrating use of
- * <code>LineBuilder</code>. </p>
- *
- * @author tag
- * @version $Id: LineBuilder.java 1 2011-07-16 23:22:47Z dcollins $
- */
 public class WorldWindView extends AVListImpl
 {
     // ===================== Control Panel ======================= //
@@ -79,7 +51,11 @@ public class WorldWindView extends AVListImpl
         public LinePanel(WorldWindow wwd, NodeBuilder nodeBuilder,ConnectorBuilder connectorBuilder)
         {
             super(new BorderLayout());
+            
+            
             this.wwd = wwd;
+            LayerList layers = this.wwd.getModel().getLayers();
+            layers.add(new OSMMapnikLayer());
             this.nodeBuilder = nodeBuilder;
             this.connectorBuilder = connectorBuilder;
             this.makePanel(new Dimension(200, 400));
@@ -97,6 +73,25 @@ public class WorldWindView extends AVListImpl
                     fillPointsNodePanel();
                 }
             });
+            //addExtraLayer();
+            
+        }
+        
+        private void addExtraLayer(){
+        	//Layer layer = (Layer) new OpenStreetMapWMSLayer();
+            LayerList layers = this.wwd.getModel().getLayers();
+            //layer.setEnabled(true);
+            
+            //ApplicationTemplate.insertBeforeCompass(this.wwd, layer);
+            //this.firePropertyChange("LayersPanelUpdated", null, layer);
+            for(Layer layer:layers){
+            	layer.setEnabled(false);
+            	if(layer.getName().contains("Bing")){
+            		layer.setEnabled(true);
+            	}
+            }
+            
+            wwd.redraw();
         }
 
         private void makePanel(Dimension size)
@@ -289,6 +284,6 @@ public class WorldWindView extends AVListImpl
     public static void main(String[] args)
     {
         //noinspection deprecation
-        ApplicationTemplate.start("World Wind Line Builder", WorldWindView.AppFrame.class);
+        ApplicationTemplate.start("Shortest Path Demo Application", WorldWindView.AppFrame.class);
     }
 }

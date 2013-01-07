@@ -10,10 +10,14 @@ package ch.zhaw.shortestPath.examples;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwindx.examples.util.HotSpotController;
 import gov.nasa.worldwind.util.layertree.LayerTree;
+import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.util.WWUtil;
 
 import java.awt.*;
+
+import ch.zhaw.shortestPath.view.ApplicationTemplate;
 
 /**
  * Example of using {@link gov.nasa.worldwind.util.tree.BasicTree} to display a list of layers.
@@ -40,6 +44,13 @@ public class LayerTreeUsage extends ApplicationTemplate
             this.hiddenLayer = new RenderableLayer();
             this.hiddenLayer.addRenderable(this.layerTree);
             this.getWwd().getModel().getLayers().add(this.hiddenLayer);
+            
+        	//Layer layer = (Layer) new OpenStreetMapWMSLayer();
+            LayerList layers = this.getWwd().getModel().getLayers();
+            //layer.setEnabled(true);
+            
+            //ApplicationTemplate.insertBeforeCompass(this.getWwd(), layer);
+            //this.firePropertyChange("LayersPanelUpdated", null, layer);
 
             // Mark the layer as hidden to prevent it being included in the layer tree's model. Including the layer in
             // the tree would enable the user to hide the layer tree display with no way of bringing it back.
@@ -59,6 +70,8 @@ public class LayerTreeUsage extends ApplicationTemplate
             WWUtil.alignComponent(null, this, AVKey.CENTER);
         }
     }
+    
+    
 
     public static void main(String[] args)
     {

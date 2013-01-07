@@ -6,15 +6,20 @@ import gov.nasa.worldwind.event.PositionEvent;
 import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.pick.PickedObjectList;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.SurfaceCircle;
 import gov.nasa.worldwind.render.SurfaceShape;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
+import ch.zhaw.shortestPath.model.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.Set;
 
 
 public class ConnectorBuilder extends AVListImpl
@@ -23,8 +28,9 @@ public class ConnectorBuilder extends AVListImpl
     private final WorldWindow wwd;
     private boolean armed = false;
     private ArrayList<Position> positions = new ArrayList<Position>();
+    private ArrayList<Polyline> lines;
     private final RenderableLayer layer;
-    private final DirectedPath line;
+    private Polyline line;
     private boolean active = false;
 
     /**
@@ -39,9 +45,9 @@ public class ConnectorBuilder extends AVListImpl
     {
         this.wwd = wwd;
 
-        this.line = new DirectedPath();
-            //this.line.setFollowTerrain(true);
-        
+        this.line = new Polyline();
+        this.line.setFollowTerrain(true);
+        this.lines = new ArrayList<Polyline>();
         this.layer = lineLayer != null ? lineLayer : new RenderableLayer();
         this.layer.addRenderable(this.line);
         this.wwd.getModel().getLayers().add(this.layer);
@@ -131,7 +137,7 @@ public class ConnectorBuilder extends AVListImpl
      *
      * @return the layer holding the polyline.
      */
-    public DirectedPath getLine()
+    public Polyline getLine()
     {
         return this.line;
     }
@@ -168,13 +174,29 @@ public class ConnectorBuilder extends AVListImpl
 
     private void addPosition()
     {
+    	//this is the way to get the object at one point
+    	PickedObjectList list = this.wwd.getObjectsAtCurrentPosition();
+    	Node currentNode = null;
         Position curPos = this.wwd.getCurrentPosition();
         if (curPos == null)
             return;
-
-        this.positions.add(curPos);
-        this.line.setPositions(this.positions);
-        circle = new SurfaceCircle(curPos, 100);
+        
+        Object obj = list.getTopPickedObject().getObject();
+        if(obj instanceof Node){
+        	currentNode = (Node)obj;
+        }
+        if(currentNode!=null && this.positions.size()<3){
+            this.positions.add((Position) currentNode.getCenter());
+            this.line.setPositions(this.positions);
+        }
+        if(this.positions.size()==2){
+        	this.lines.add(this.line);
+        	this.line = new Polyline();
+        	this.positions.clear();
+        }
+        
+        //this.positions.add(curPos);
+        //this.line.setPositions(this.positions);
 
         
         this.firePropertyChange("LineBuilder.AddPosition", null, curPos);

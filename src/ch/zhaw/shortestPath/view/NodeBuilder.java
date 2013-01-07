@@ -6,6 +6,7 @@ import gov.nasa.worldwind.event.PositionEvent;
 import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.pick.PickedObjectList;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.ShapeAttributes;
@@ -173,20 +174,24 @@ public class NodeBuilder extends AVListImpl
 
     private void addPosition()
     {
+    	
+    	
         Position curPos = this.wwd.getCurrentPosition();
         if (curPos == null)
             return;
 
         this.positions.add(curPos);
         //this.line.setPositions(this.positions);
-        this.node = new Node(curPos, 200);
+        this.node = new Node(curPos, 100);
         Color color = new Color(0f, 0f, 1f);
         ShapeAttributes attr = new BasicShapeAttributes();
         attr.setDrawOutline(true);
+        attr.setInteriorMaterial(new Material(color));
+        attr.setInteriorOpacity(1.0);
         attr.setOutlineMaterial(new Material(color));
         attr.setOutlineOpacity(1.0);
         attr.setOutlineWidth(2.0);
-        attr.setDrawInterior(false);
+        attr.setDrawInterior(true);
         
         this.node.setAttributes(attr);
         
