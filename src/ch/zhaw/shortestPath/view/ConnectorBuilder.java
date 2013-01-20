@@ -28,9 +28,9 @@ public class ConnectorBuilder extends AVListImpl
     private final WorldWindow wwd;
     private boolean armed = false;
     private ArrayList<Position> positions = new ArrayList<Position>();
-    private ArrayList<Polyline> lines;
+    private ArrayList<Connector> lines;
     private final RenderableLayer layer;
-    private Polyline line;
+    private Connector line;
     private boolean active = false;
 
     /**
@@ -45,9 +45,9 @@ public class ConnectorBuilder extends AVListImpl
     {
         this.wwd = wwd;
 
-        this.line = new Polyline();
+        this.line = new Connector();
         this.line.setFollowTerrain(true);
-        this.lines = new ArrayList<Polyline>();
+        this.lines = new ArrayList<Connector>();
         this.layer = lineLayer != null ? lineLayer : new RenderableLayer();
         this.layer.addRenderable(this.line);
         this.wwd.getModel().getLayers().add(this.layer);
@@ -74,8 +74,8 @@ public class ConnectorBuilder extends AVListImpl
             {
                 if (armed && mouseEvent.getButton() == MouseEvent.BUTTON1)
                 {
-                    if (positions.size() == 1)
-                        removePosition();
+                    if (positions.size() == 2)
+                        releasePosition();
                     active = false;
                     mouseEvent.consume();
                 }
@@ -114,10 +114,7 @@ public class ConnectorBuilder extends AVListImpl
                 if (!active)
                     return;
 
-                if (positions.size() == 1)
-                    addPosition();
-                else
-                    replacePosition();
+                replacePosition();
             }
         });
     }
@@ -137,7 +134,7 @@ public class ConnectorBuilder extends AVListImpl
      *
      * @return the layer holding the polyline.
      */
-    public Polyline getLine()
+    public Connector getLine()
     {
         return this.line;
     }
@@ -185,14 +182,10 @@ public class ConnectorBuilder extends AVListImpl
         if(obj instanceof Node){
         	currentNode = (Node)obj;
         }
-        if(currentNode!=null && this.positions.size()<3){
+        if(currentNode!=null && this.positions.size()<=2){
+            this.positions.add((Position) currentNode.getCenter());
             this.positions.add((Position) currentNode.getCenter());
             this.line.setPositions(this.positions);
-        }
-        if(this.positions.size()==2){
-        	this.lines.add(this.line);
-        	this.line = new Polyline();
-        	this.positions.clear();
         }
         
         //this.positions.add(curPos);
@@ -201,6 +194,31 @@ public class ConnectorBuilder extends AVListImpl
         
         this.firePropertyChange("LineBuilder.AddPosition", null, curPos);
         this.wwd.redraw();
+    }
+    
+    private void releasePosition(){
+    	PickedObjectList list = this.wwd.getObjectsAtCurrentPosition();
+    	Node currentNode = null;
+    	
+        Object obj = list.getTopPickedObject().getObject();
+        if(obj instanceof Node){
+        	currentNode = (Node)obj;
+        	this.positions.set(1,(Position) currentNode.getCenter());
+        	this.line.setPositions(positions);
+        }else{
+        	this.line = new Connector();
+        	this.line.setFollowTerrain(true);
+        	this.layer.addRenderable(line);
+        	this.positions.clear();
+        	return;
+        }
+        
+    	if(this.positions.size()==2){
+        	this.lines.add(this.line);
+        	this.line = new Connector();
+        	this.layer.addRenderable(line);
+        	this.positions.clear();
+        }
     }
 
     private void replacePosition()

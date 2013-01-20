@@ -48,6 +48,8 @@ public class WorldWindView extends AVListImpl
         private JLabel[] pointLabels;
         private JLabel[] pointNodeLabels;
 
+		private JButton endNodeButton;
+
         public LinePanel(WorldWindow wwd, NodeBuilder nodeBuilder,ConnectorBuilder connectorBuilder)
         {
             super(new BorderLayout());
@@ -73,7 +75,7 @@ public class WorldWindView extends AVListImpl
                     fillPointsNodePanel();
                 }
             });
-            //addExtraLayer();
+            addExtraLayer();
             
         }
         
@@ -86,7 +88,7 @@ public class WorldWindView extends AVListImpl
             //this.firePropertyChange("LayersPanelUpdated", null, layer);
             for(Layer layer:layers){
             	layer.setEnabled(false);
-            	if(layer.getName().contains("Bing")){
+            	if(layer.getName().contains("Open")){
             		layer.setEnabled(true);
             	}
             }
@@ -98,6 +100,7 @@ public class WorldWindView extends AVListImpl
         {
         	JPanel buttonPanelNode = new JPanel(new GridLayout(1, 2, 5, 5));
         	newNodeButton = new JButton("new Node");
+        	endNodeButton = new JButton("Stop");
         	newNodeButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent actionEvent)
@@ -113,8 +116,24 @@ public class WorldWindView extends AVListImpl
                     ((Component) wwd).setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 }
             });
+        	endNodeButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                	
+                    //lineBuilder.clear();
+                    nodeBuilder.setArmed(false);
+                    connectorBuilder.setArmed(false);
+                    //pauseButton.setText("Pause");
+                    //pauseButton.setEnabled(true);
+                    //endButton.setEnabled(true);
+                    //newButton.setEnabled(false);
+                    ((Component) wwd).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
+            });
         	
         	buttonPanelNode.add(newNodeButton);
+        	buttonPanelNode.add(endNodeButton);
         	
             JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
             newButton = new JButton("New");
