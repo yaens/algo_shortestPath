@@ -1,11 +1,15 @@
 package ch.zhaw.shortestPath.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class DijkstraAlgorithm implements IPathAlgorithm {
 	private static List<Kante> graph = new ArrayList<Kante>();
 	private static List<Punkt> punkte = new ArrayList<Punkt>();
+	private static List<Punkt> weg = new ArrayList<Punkt>();
+	private static List<Punkt> tmplist = new ArrayList<Punkt>();
 	private static int distanceToStart;
 	private static Punkt A;
 	private static Punkt B;
@@ -31,6 +35,15 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 	private static Kante k13;
 	private static Kante k14;
 	private static Kante k15;
+
+	@SuppressWarnings("rawtypes")
+	static Comparator pascal = new Comparator() {
+		public int compare(Object o1, Object o2) {
+			Punkt p1 = (Punkt) o1;
+			Punkt p2 = (Punkt) o2;
+			return p1.getDistance() - p2.getDistance();
+		}
+	};
 
 	public static void createTestSzenario() {
 
@@ -78,7 +91,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		k5 = new Kante(B, G, 6);
 		k6 = new Kante(C, I, 15);
 		k7 = new Kante(C, D, 2);
-		k8 = new Kante(D, I, 1);
+		k8 = new Kante(D, I, 2);
 		k9 = new Kante(D, E, 1);
 		k10 = new Kante(E, H, 3);
 		k11 = new Kante(E, F, 6);
@@ -105,27 +118,6 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	}
 
-	// public static boolean reachable(String point) {
-	// boolean output = false;
-	// for (String kant : graph) {
-	// String ziel = kant.split("-")[1];
-	// if (ziel.equals(point)) {
-	// output = true;
-	// }
-	// }
-	// return output;
-	// }
-
-	public static boolean reachable(Punkt start) {
-		boolean output = false;
-		for (Kante kant : graph) {
-			if (kant.getTo() == start) {
-				output = true;
-			}
-		}
-		return output;
-	}
-
 	public static int getLength(Punkt from, Punkt to) {
 		int output = 0;
 		for (Kante kant : graph) {
@@ -140,16 +132,42 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	public static void main(String[] args) {
 		createTestSzenario();
-		System.out.println(getLength(A, B));
-
-		// work(graph, A);
+		work(graph, A);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String work(List<Kante> graph, Punkt start) {
 		String output = "nichts";
 		distanceToStart = 0;
+
+		weg.add(start);
+
 		for (Punkt next : start.getNext()) {
-			System.out.println(next);
+			next.setDistance(distanceToStart + getLength(start, next));
+			tmplist.add(next);
+		}
+
+		for (int i = 0; i < graph.size(); i++) {
+
+			Collections.sort(tmplist, pascal);
+
+			if (tmplist.size() == 0) {
+				break;
+			}
+
+			weg.add(tmplist.get(0));
+			Punkt latest = weg.get(weg.size() - 1);
+			tmplist.clear();
+
+			for (Punkt next : latest.getNext()) {
+				next.setDistance(latest.getDistance() + getLength(latest, next));
+				tmplist.add(next);
+			}
+
+		}
+
+		for (Punkt pascal : weg) {
+			System.out.println(pascal.getName());
 		}
 
 		return output;

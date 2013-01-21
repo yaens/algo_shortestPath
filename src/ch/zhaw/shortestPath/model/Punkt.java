@@ -44,4 +44,5 @@ public class Punkt {
 	int getDistance() {
 		return distance;
 	}
+
 }
