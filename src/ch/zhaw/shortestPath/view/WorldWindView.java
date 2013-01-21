@@ -57,7 +57,7 @@ public class WorldWindView extends AVListImpl
             
             this.wwd = wwd;
             LayerList layers = this.wwd.getModel().getLayers();
-            layers.add(new OSMMapnikLayer());
+            //layers.add(new OSMMapnikLayer());
             this.nodeBuilder = nodeBuilder;
             this.connectorBuilder = connectorBuilder;
             this.makePanel(new Dimension(200, 400));
@@ -87,7 +87,7 @@ public class WorldWindView extends AVListImpl
             //ApplicationTemplate.insertBeforeCompass(this.wwd, layer);
             //this.firePropertyChange("LayersPanelUpdated", null, layer);
             for(Layer layer:layers){
-            	layer.setEnabled(false);
+            	//layer.setEnabled(false);
             	if(layer.getName().contains("Open")){
             		layer.setEnabled(true);
             	}
@@ -247,7 +247,7 @@ public class WorldWindView extends AVListImpl
 
         private void fillPointsPanel()
         {
-            int i = 0;
+            /*int i = 0;
             for (Position pos : connectorBuilder.getLine().getPositions())
             {
                 if (i == this.pointLabels.length)
@@ -258,7 +258,7 @@ public class WorldWindView extends AVListImpl
                 pointLabels[i++].setText(las + "  " + los);
             }
             for (; i < this.pointLabels.length; i++)
-                pointLabels[i++].setText("");
+                pointLabels[i++].setText("");*/
         }
         
         private void fillPointsNodePanel()

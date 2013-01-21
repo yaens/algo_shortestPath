@@ -3,12 +3,15 @@ package ch.zhaw.shortestPath.model;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 
-public class Connector extends DirectedPath {
+public class Connector extends Polyline {
 	private Node from;
 	private Node to;
 	
 	private double lenght;
 
+	public Connector(){
+		super();
+	}
 	public double getLenght() {
 		return lenght;
 	}

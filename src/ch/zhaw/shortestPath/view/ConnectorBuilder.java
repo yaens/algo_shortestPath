@@ -6,6 +6,7 @@ import gov.nasa.worldwind.event.PositionEvent;
 import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.pick.PickedObject;
 import gov.nasa.worldwind.pick.PickedObjectList;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.SurfaceShape;
@@ -15,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
+import ch.zhaw.shortestPath.model.Connector;
 import ch.zhaw.shortestPath.model.Node;
 
 public class ConnectorBuilder extends AVListImpl {
@@ -22,10 +24,11 @@ public class ConnectorBuilder extends AVListImpl {
 	private final WorldWindow wwd;
 	private boolean armed = false;
 	private ArrayList<Position> positions = new ArrayList<Position>();
-	private ArrayList<Polyline> lines;
+	private ArrayList<Connector> lines;
 	private final RenderableLayer layer;
-	private Polyline line;
+	private Connector line;
 	private boolean active = false;
+	private int clickCount = 0;
 
 	/**
 	 * Construct a new line builder using the specified polyline and layer and
@@ -45,71 +48,48 @@ public class ConnectorBuilder extends AVListImpl {
 	public ConnectorBuilder(final WorldWindow wwd, RenderableLayer lineLayer) {
 		this.wwd = wwd;
 
-		this.line = new Polyline();
+		this.line = new Connector();
 		this.line.setFollowTerrain(true);
-		this.lines = new ArrayList<Polyline>();
+		//this.line.(10);
+		this.lines = new ArrayList<Connector>();
 		this.layer = lineLayer != null ? lineLayer : new RenderableLayer();
 		this.layer.addRenderable(this.line);
 		this.wwd.getModel().getLayers().add(this.layer);
 
 		this.wwd.getInputHandler().addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent mouseEvent) {
-				if (armed && mouseEvent.getButton() == MouseEvent.BUTTON1) {
-					if (armed
-							&& (mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0) {
-						if (!mouseEvent.isControlDown()) {
-							active = true;
-							addPosition();
-						}
-					}
-					mouseEvent.consume();
-				}
-			}
+			//public void mousePressed(MouseEvent mouseEvent) {
+				//mouseEvent.consume();
+			//}
 
-			public void mouseReleased(MouseEvent mouseEvent) {
+			/*public void mouseReleased(MouseEvent mouseEvent) {
 				if (armed && mouseEvent.getButton() == MouseEvent.BUTTON1) {
 					if (positions.size() == 1)
-						removePosition();
+						//removePosition();
 					active = false;
 					mouseEvent.consume();
 				}
-			}
+			}*/
 
 			public void mouseClicked(MouseEvent mouseEvent) {
+				
 				if (armed && mouseEvent.getButton() == MouseEvent.BUTTON1) {
-					if (mouseEvent.isControlDown())
-						removePosition();
+					if (armed
+							&& (MouseEvent.BUTTON1_DOWN_MASK) != 0) {
+
+							active = true;
+							addPosition();
+						
+					}
 					mouseEvent.consume();
 				}
 			}
 		});
 
-		this.wwd.getInputHandler().addMouseMotionListener(
-				new MouseMotionAdapter() {
-					public void mouseDragged(MouseEvent mouseEvent) {
-						if (armed
-								&& (mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0) {
-							// Don't update the polyline here because the wwd
-							// current cursor position will not
-							// have been updated to reflect the current mouse
-							// position. Wait to update in the
-							// position listener, but consume the event so the
-							// view doesn't respond to it.
-							if (active)
-								mouseEvent.consume();
-						}
-					}
-				});
-
 		this.wwd.addPositionListener(new PositionListener() {
 			public void moved(PositionEvent event) {
 				if (!active)
 					return;
-
-				if (positions.size() == 1)
-					addPosition();
-				else
-					replacePosition();
+				replacePosition();
 			}
 		});
 	}
@@ -128,7 +108,7 @@ public class ConnectorBuilder extends AVListImpl {
 	 * 
 	 * @return the layer holding the polyline.
 	 */
-	public Polyline getLine() {
+	public Connector getLine() {
 		return this.line;
 	}
 
@@ -166,28 +146,46 @@ public class ConnectorBuilder extends AVListImpl {
 		// this is the way to get the object at one point
 		PickedObjectList list = this.wwd.getObjectsAtCurrentPosition();
 		Node currentNode = null;
-		Position curPos = this.wwd.getCurrentPosition();
-		if (curPos == null)
-			return;
-
-		Object obj = list.getTopPickedObject().getObject();
-		if (obj instanceof Node) {
-			currentNode = (Node) obj;
+		//Position curPos = this.wwd.getCurrentPosition();
+		//if (curPos == null)
+			//return;
+		
+		for(PickedObject obj : list){
+			if (obj.getObject() instanceof Node) {
+				currentNode = (Node) obj.getObject();
+			}
 		}
-		if (currentNode != null && this.positions.size() < 3) {
+		if(currentNode==null){
+			active = false;
+			this.positions.clear();
+			this.lines.remove(this.line);
+			this.layer.removeRenderable(this.line);
+			this.line = new Connector();
+			this.line.setFollowTerrain(true);
+			this.layer.addRenderable(this.line);
+			return;
+		}
+		
+		if (this.positions.size() < 2) {
+			this.positions.add((Position) currentNode.getCenter());
 			this.positions.add((Position) currentNode.getCenter());
 			this.line.setPositions(this.positions);
-		}
-		if (this.positions.size() == 2) {
+			
+		}else if (this.positions.size() == 2) {
+			this.positions.set(1,(Position) currentNode.getCenter());
+			this.line.setPositions(this.positions);
 			this.lines.add(this.line);
-			this.line = new Polyline();
+			this.line = new Connector();
+			this.line.setFollowTerrain(true);
+			this.layer.addRenderable(this.line);
 			this.positions.clear();
+			this.active = false;
 		}
 
 		// this.positions.add(curPos);
 		// this.line.setPositions(this.positions);
 
-		this.firePropertyChange("LineBuilder.AddPosition", null, curPos);
+		this.firePropertyChange("LineBuilder.AddPosition", null, currentNode.getCenter());
 		this.wwd.redraw();
 	}
 
