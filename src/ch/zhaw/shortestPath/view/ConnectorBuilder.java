@@ -26,8 +26,6 @@ public class ConnectorBuilder extends AVListImpl {
 	private final RenderableLayer layer;
 	private Polyline line;
 	private boolean active = false;
-	private Node from;
-	private Node to;
 
 	/**
 	 * Construct a new line builder using the specified polyline and layer and
@@ -221,21 +219,5 @@ public class ConnectorBuilder extends AVListImpl {
 		this.firePropertyChange("LineBuilder.RemovePosition",
 				currentLastPosition, null);
 		this.wwd.redraw();
-	}
-
-	public Node getFromNode() {
-		return from;
-	}
-
-	public void setFromNode(Node from) {
-		this.from = from;
-	}
-
-	public Node getToNode() {
-		return to;
-	}
-
-	public void setToNode(Node to) {
-		this.to = to;
 	}
 }

@@ -16,5 +16,21 @@ public class Connector extends DirectedPath {
 	public void setLenght(double lenght) {
 		this.lenght = lenght;
 	}
+	
+	public Node getFromNode() {
+		return from;
+	}
+
+	public void setFromNode(Node from) {
+		this.from = from;
+	}
+
+	public Node getToNode() {
+		return to;
+	}
+
+	public void setToNode(Node to) {
+		this.to = to;
+	}
 
 }
