@@ -3,13 +3,13 @@ package ch.zhaw.shortestPath.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Punkt {
+public class Point {
 	String name;
-	List<Punkt> next = new ArrayList<Punkt>();
-	Punkt before;
+	List<Point> next = new ArrayList<Point>();
+	Point before;
 	int distance;
 
-	public Punkt(String name) {
+	public Point(String name) {
 		this.name = name;
 	}
 
@@ -21,19 +21,19 @@ public class Punkt {
 		return name;
 	}
 
-	void setNext(Punkt next) {
+	void setNext(Point next) {
 		this.next.add(next);
 	}
 
-	List<Punkt> getNext() {
+	List<Point> getNext() {
 		return next;
 	}
 
-	void setBefore(Punkt before) {
+	void setBefore(Point before) {
 		this.before = before;
 	}
 
-	Punkt getBefore() {
+	Point getBefore() {
 		return before;
 	}
 

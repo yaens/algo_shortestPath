@@ -3,71 +3,72 @@ package ch.zhaw.shortestPath.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 public class DijkstraAlgorithm implements IPathAlgorithm {
-	private static List<Kante> graph = new ArrayList<Kante>();
-	private static List<Punkt> punkte = new ArrayList<Punkt>();
-	private static List<Punkt> weg = new ArrayList<Punkt>();
-	private static List<Kante> kantenweg = new ArrayList<Kante>();
-	private static List<Punkt> tmplist = new ArrayList<Punkt>();
-	private static int distanceToStart;
-	private static Punkt A;
-	private static Punkt B;
-	private static Punkt C;
-	private static Punkt D;
-	private static Punkt E;
-	private static Punkt F;
-	private static Punkt G;
-	private static Punkt H;
-	private static Punkt I;
-	private static Kante k1;
-	private static Kante k2;
-	private static Kante k3;
-	private static Kante k4;
-	private static Kante k5;
-	private static Kante k6;
-	private static Kante k7;
-	private static Kante k8;
-	private static Kante k9;
-	private static Kante k10;
-	private static Kante k11;
-	private static Kante k12;
-	private static Kante k13;
-	private static Kante k14;
-	private static Kante k15;
+	private static List<Edge> originalGraph = new ArrayList<Edge>();
+	private static List<Edge> whiteGraph = new ArrayList<Edge>();
+	private static List<Edge> redGraph = new ArrayList<Edge>();
+	private static List<Edge> greenGraph = new ArrayList<Edge>();
+	private static List<Point> points = new ArrayList<Point>();
+	private static List<Point> path = new ArrayList<Point>();
+	private static List<Point> whitePoints = new ArrayList<Point>();
+	private static List<Point> redPoints = new ArrayList<Point>();
+	private static List<Point> greenPoints = new ArrayList<Point>();
+	private static Point A;
+	private static Point B;
+	private static Point C;
+	private static Point D;
+	private static Point E;
+	private static Point F;
+	private static Point G;
+	private static Point H;
+	private static Point I;
+	private static Edge k1;
+	private static Edge k2;
+	private static Edge k3;
+	private static Edge k4;
+	private static Edge k5;
+	private static Edge k6;
+	private static Edge k7;
+	private static Edge k8;
+	private static Edge k9;
+	private static Edge k10;
+	private static Edge k11;
+	private static Edge k12;
+	private static Edge k13;
+	private static Edge k14;
+	private static Edge k15;
 
-	@SuppressWarnings("rawtypes")
-	static Comparator pascal = new Comparator() {
-		public int compare(Object o1, Object o2) {
-			Punkt p1 = (Punkt) o1;
-			Punkt p2 = (Punkt) o2;
-			return p1.getDistance() - p2.getDistance();
+	static Comparator<Point> sortByDistance = new Comparator<Point>() {
+		public int compare(Point point1, Point point2) {
+			return point1.getDistance() - point2.getDistance();
 		}
 	};
 
 	public static void createTestSzenario() {
 
 		// a1, b2, c3, d4, e5, f6, g7, h8, i9
-		A = new Punkt("A");
-		B = new Punkt("B");
-		C = new Punkt("C");
-		D = new Punkt("D");
-		E = new Punkt("E");
-		F = new Punkt("F");
-		G = new Punkt("G");
-		H = new Punkt("H");
-		I = new Punkt("I");
+		A = new Point("A");
+		B = new Point("B");
+		C = new Point("C");
+		D = new Point("D");
+		E = new Point("E");
+		F = new Point("F");
+		G = new Point("G");
+		H = new Point("H");
+		I = new Point("I");
 
-		punkte.add(A);
-		punkte.add(B);
-		punkte.add(C);
-		punkte.add(D);
-		punkte.add(E);
-		punkte.add(F);
-		punkte.add(G);
-		punkte.add(H);
-		punkte.add(I);
+		points.add(A);
+		points.add(B);
+		points.add(C);
+		points.add(D);
+		points.add(E);
+		points.add(F);
+		points.add(G);
+		points.add(H);
+		points.add(I);
 
 		A.setNext(B);
 		A.setNext(F);
@@ -85,57 +86,68 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		G.setNext(I);
 		H.setNext(I);
 
-		k1 = new Kante(A, B, 2);
-		k2 = new Kante(A, F, 9);
-		k3 = new Kante(A, G, 15);
-		k4 = new Kante(B, C, 4);
-		k5 = new Kante(B, G, 6);
-		k6 = new Kante(C, I, 15);
-		k7 = new Kante(C, D, 2);
-		k8 = new Kante(D, I, 2);
-		k9 = new Kante(D, E, 1);
-		k10 = new Kante(E, H, 3);
-		k11 = new Kante(E, F, 6);
-		k12 = new Kante(F, H, 11);
-		k13 = new Kante(G, H, 15);
-		k14 = new Kante(G, I, 2);
-		k15 = new Kante(H, I, 9);
+		k1 = new Edge(A, B, 2);
+		k2 = new Edge(A, F, 9);
+		k3 = new Edge(A, G, 15);
+		k4 = new Edge(B, C, 4);
+		k5 = new Edge(B, G, 6);
+		k6 = new Edge(C, I, 15);
+		k7 = new Edge(C, D, 2);
+		k8 = new Edge(D, I, 2);
+		k9 = new Edge(D, E, 1);
+		k10 = new Edge(E, H, 3);
+		k11 = new Edge(E, F, 6);
+		k12 = new Edge(F, H, 11);
+		k13 = new Edge(G, H, 15);
+		k14 = new Edge(G, I, 2);
+		k15 = new Edge(H, I, 9);
 
-		graph.add(k1);
-		graph.add(k2);
-		graph.add(k3);
-		graph.add(k4);
-		graph.add(k5);
-		graph.add(k6);
-		graph.add(k7);
-		graph.add(k8);
-		graph.add(k9);
-		graph.add(k10);
-		graph.add(k11);
-		graph.add(k12);
-		graph.add(k13);
-		graph.add(k14);
-		graph.add(k15);
+		originalGraph.add(k1);
+		originalGraph.add(k2);
+		originalGraph.add(k3);
+		originalGraph.add(k4);
+		originalGraph.add(k5);
+		originalGraph.add(k6);
+		originalGraph.add(k7);
+		originalGraph.add(k8);
+		originalGraph.add(k9);
+		originalGraph.add(k10);
+		originalGraph.add(k11);
+		originalGraph.add(k12);
+		originalGraph.add(k13);
+		originalGraph.add(k14);
+		originalGraph.add(k15);
 
 	}
 
-	public static Kante getK(Punkt from, Punkt to) {
-		Kante output = null;
-		for (Kante kant : graph) {
-			if (kant.from == from && kant.to == to) {
-				output = kant;
+	public static Edge getEdge(Point from, Point to) {
+		Edge output = null;
+		for (Edge ed : originalGraph) {
+			if (ed.from == from && ed.to == to) {
+				output = ed;
 			}
 		}
 		return output;
 	}
 
-	public static int getLength(Punkt from, Punkt to) {
+	public static void switchRedToGreen(Point point) {
+		redPoints.remove(point);
+		greenPoints.add(point);
+	}
+
+	public static void removeDuplicatePoints(List<Point> list) {
+		HashSet<Point> hashSet = new HashSet<Point>(list);
+		list.clear();
+		list.addAll(hashSet);
+	}
+
+	public static int getLengthFromTo(Point from, Point to) {
 		int output = 0;
-		for (Kante kant : graph) {
-			Punkt start = kant.getFrom();
-			Punkt end = kant.getTo();
+		for (Edge ed : originalGraph) {
+			Point start = ed.getFrom();
+			Point end = ed.getTo();
 			if (start == from && end == to) {
-				output = kant.getDistance();
+				output = ed.getDistance();
 			}
 		}
 		return output;
@@ -143,49 +155,104 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	public static void main(String[] args) {
 		createTestSzenario();
-		work(graph, A);
+		work(originalGraph, A);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static String work(List<Kante> graph, Punkt start) {
-		String output = "nichts";
-		distanceToStart = 0;
-		start.setBefore(null);
+	public static void work(List<Edge> graph, Point start) {
 
-		weg.add(start);
+		// try
+		greenPoints.add(start);
 
-		for (Punkt next : start.getNext()) {
-			next.setDistance(distanceToStart + getLength(start, next));
-			tmplist.add(next);
+		path.add(start);
+
+		for (Point next : start.getNext()) {
+			// try
+			redPoints.add(next);
+
+			int distanceStartNext = getLengthFromTo(start, next);
+			next.setDistance(distanceStartNext);
 		}
 
-		for (int i = 0; i < graph.size(); i++) {
+		for (Point red : redPoints) {
+			Edge edge = getEdge(start, red);
+			greenGraph.add(edge);
+		}
 
-			Collections.sort(tmplist, pascal);
+		// sort the red points
+		Collections.sort(redPoints, sortByDistance);
 
-			if (tmplist.size() == 0) {
+		Point nextPoint = redPoints.get(0);
+		switchRedToGreen(nextPoint);
+
+		for (Point next : nextPoint.getNext()) {
+			// try
+			redPoints.add(next);
+
+			Point latest = nextPoint.getBefore();
+			int distanceLatestNext = getLengthFromTo(latest, next);
+			System.out.println(next.getDistance());
+			System.out.println(next.getName());
+			System.out.println(distanceLatestNext);
+			// next.setDistance(latest.getDistance() + distanceLatestNext);
+		}
+
+		// only one same point in the list...
+		removeDuplicatePoints(redPoints);
+
+		System.out.println("red points");
+		for (Point red : redPoints) {
+			System.out.println(red.getName());
+		}
+		System.out.println("green points");
+		for (Point green : greenPoints) {
+			System.out.println(green.getName());
+		}
+		System.out.println("green edges");
+		for (Edge g : greenGraph) {
+			System.out.println(g.getFrom().getName() + " - "
+					+ g.getTo().getName() + "");
+		}
+		System.out.println("red edges");
+		for (Edge g : redGraph) {
+			System.out.println(g.getFrom().getName() + " - "
+					+ g.getTo().getName() + "");
+		}
+
+		// im worst case muss der algo (anzahl konten * anzahl kanten)
+		// durchlaufen (bellmann-ford)
+		// int maximalRuns = graph.size() * punkte.size();
+
+		// im worst case muss der algo (anzahl knoten * anzahl anzahl)
+		// durchlaufen (Dijkstra)
+		int maximalRuns = points.size() * points.size();
+
+		for (int i = 0; i < maximalRuns; i++) {
+
+			Collections.sort(greenPoints, sortByDistance);
+
+			if (greenPoints.size() == 0) {
 				break;
 			}
 
-			weg.add(tmplist.get(0));
-			Punkt latest = weg.get(weg.size() - 1);
-			latest.setBefore(weg.get(weg.size() - 2));
-			tmplist.clear();
+			path.add(greenPoints.get(0));
+			Point latest = path.get(path.size() - 1);
+			Point before = path.get(path.size() - 2);
+			latest.setBefore(before);
+			greenPoints.clear();
 
-			for (Punkt next : latest.getNext()) {
-				next.setDistance(latest.getDistance() + getLength(latest, next));
-				tmplist.add(next);
+			for (Point next : latest.getNext()) {
+				int distanceLatestNext = getLengthFromTo(latest, next);
+				next.setDistance(latest.getDistance() + distanceLatestNext);
+				greenPoints.add(next);
 			}
 
 		}
 
-		for (int i = 1; i < weg.size(); i++) {
-			System.out.println("Der Weg geht ueber "
-					+ weg.get(i).getBefore().getName() + " zu "
-					+ weg.get(i).getName());
+		for (int i = 1; i < path.size(); i++) {
+			String from = path.get(i).getBefore().getName();
+			String to = path.get(i).getName();
+			System.out.println("Der Weg geht ueber " + from + " zu " + to);
 		}
-
-		return output;
 	}
 
 	@Override

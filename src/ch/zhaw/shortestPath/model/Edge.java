@@ -1,11 +1,11 @@
 package ch.zhaw.shortestPath.model;
 
-public class Kante {
+public class Edge {
 	int distance;
-	Punkt from;
-	Punkt to;
+	Point from;
+	Point to;
 
-	Kante(Punkt from, Punkt to, int distance) {
+	Edge(Point from, Point to, int distance) {
 		this.from = from;
 		this.to = to;
 		this.distance = distance;
@@ -19,19 +19,19 @@ public class Kante {
 		this.distance = distance;
 	}
 
-	public Punkt getFrom() {
+	public Point getFrom() {
 		return from;
 	}
 
-	public void setFrom(Punkt from) {
+	public void setFrom(Point from) {
 		this.from = from;
 	}
 
-	public Punkt getTo() {
+	public Point getTo() {
 		return to;
 	}
 
-	public void setTo(Punkt to) {
+	public void setTo(Point to) {
 		this.to = to;
 	}
 
