@@ -142,16 +142,10 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		createTestSzenario();
 		System.out.println(getLength(A, B));
 
-		// for (Punkt punkt : punkte) {
-		// for (String blaa : punkt.getNext()) {
-		// System.out.println(blaa);
-		// }
-		// }
-
-		// doDijkstra(graph, A);
+		// work(graph, A);
 	}
 
-	public static String doDijkstra(List<String> graph, Punkt start) {
+	public static String work(List<Kante> graph, Punkt start) {
 		String output = "nichts";
 		distanceToStart = 0;
 		for (Punkt next : start.getNext()) {
