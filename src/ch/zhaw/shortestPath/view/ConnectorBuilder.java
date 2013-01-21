@@ -10,6 +10,7 @@ import gov.nasa.worldwind.pick.PickedObject;
 import gov.nasa.worldwind.pick.PickedObjectList;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.SurfaceShape;
+import gov.nasa.worldwind.util.measure.LengthMeasurer;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,9 +25,10 @@ public class ConnectorBuilder extends AVListImpl {
 	private final WorldWindow wwd;
 	private boolean armed = false;
 	private ArrayList<Position> positions = new ArrayList<Position>();
+	private LengthMeasurer measurer;
 	private ArrayList<Connector> lines;
 	private final RenderableLayer layer;
-	private Connector line;
+	private Connector line = null;
 	private boolean active = false;
 	private int clickCount = 0;
 
@@ -47,13 +49,13 @@ public class ConnectorBuilder extends AVListImpl {
 	 */
 	public ConnectorBuilder(final WorldWindow wwd, RenderableLayer lineLayer) {
 		this.wwd = wwd;
-
-		this.line = new Connector();
-		this.line.setFollowTerrain(true);
+		
+		this.measurer = new LengthMeasurer();
+		
 		//this.line.(10);
 		this.lines = new ArrayList<Connector>();
 		this.layer = lineLayer != null ? lineLayer : new RenderableLayer();
-		this.layer.addRenderable(this.line);
+		//this.layer.addRenderable(this.line);
 		this.wwd.getModel().getLayers().add(this.layer);
 
 		this.wwd.getInputHandler().addMouseListener(new MouseAdapter() {
@@ -146,9 +148,6 @@ public class ConnectorBuilder extends AVListImpl {
 		// this is the way to get the object at one point
 		PickedObjectList list = this.wwd.getObjectsAtCurrentPosition();
 		Node currentNode = null;
-		//Position curPos = this.wwd.getCurrentPosition();
-		//if (curPos == null)
-			//return;
 		
 		for(PickedObject obj : list){
 			if (obj.getObject() instanceof Node) {
@@ -160,10 +159,13 @@ public class ConnectorBuilder extends AVListImpl {
 			this.positions.clear();
 			this.lines.remove(this.line);
 			this.layer.removeRenderable(this.line);
-			this.line = new Connector();
-			this.line.setFollowTerrain(true);
-			this.layer.addRenderable(this.line);
+			this.line = null;
 			return;
+		}
+		
+		if(this.line == null){
+			this.line = new Connector(currentNode);
+			this.layer.addRenderable(this.line);
 		}
 		
 		if (this.positions.size() < 2) {
@@ -174,9 +176,11 @@ public class ConnectorBuilder extends AVListImpl {
 		}else if (this.positions.size() == 2) {
 			this.positions.set(1,(Position) currentNode.getCenter());
 			this.line.setPositions(this.positions);
+			this.line.setToNode(currentNode);
+			measurer.setPositions((ArrayList<? extends Position>) line.getPositions());
+			this.line.setLenght(measurer.getLength(this.wwd.getModel().getGlobe()));
 			this.lines.add(this.line);
-			this.line = new Connector();
-			this.line.setFollowTerrain(true);
+			this.line = new Connector(currentNode);
 			this.layer.addRenderable(this.line);
 			this.positions.clear();
 			this.active = false;

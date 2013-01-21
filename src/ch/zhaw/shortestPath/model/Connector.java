@@ -9,8 +9,10 @@ public class Connector extends Polyline {
 	
 	private double lenght;
 
-	public Connector(){
+	public Connector(Node from){
 		super();
+		this.setFromNode(from);
+		this.setFollowTerrain(true);
 	}
 	public double getLenght() {
 		return lenght;
