@@ -6,7 +6,7 @@ import java.util.List;
 public class Punkt {
 	String name;
 	List<Punkt> next = new ArrayList<Punkt>();
-	String before;
+	Punkt before;
 	int distance;
 
 	public Punkt(String name) {
@@ -29,11 +29,11 @@ public class Punkt {
 		return next;
 	}
 
-	void setBefore(String before) {
+	void setBefore(Punkt before) {
 		this.before = before;
 	}
 
-	String getBeforce() {
+	Punkt getBefore() {
 		return before;
 	}
 

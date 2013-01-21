@@ -9,6 +9,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 	private static List<Kante> graph = new ArrayList<Kante>();
 	private static List<Punkt> punkte = new ArrayList<Punkt>();
 	private static List<Punkt> weg = new ArrayList<Punkt>();
+	private static List<Kante> kantenweg = new ArrayList<Kante>();
 	private static List<Punkt> tmplist = new ArrayList<Punkt>();
 	private static int distanceToStart;
 	private static Punkt A;
@@ -118,6 +119,16 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	}
 
+	public static Kante getK(Punkt from, Punkt to) {
+		Kante output = null;
+		for (Kante kant : graph) {
+			if (kant.from == from && kant.to == to) {
+				output = kant;
+			}
+		}
+		return output;
+	}
+
 	public static int getLength(Punkt from, Punkt to) {
 		int output = 0;
 		for (Kante kant : graph) {
@@ -139,6 +150,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 	public static String work(List<Kante> graph, Punkt start) {
 		String output = "nichts";
 		distanceToStart = 0;
+		start.setBefore(null);
 
 		weg.add(start);
 
@@ -157,6 +169,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 			weg.add(tmplist.get(0));
 			Punkt latest = weg.get(weg.size() - 1);
+			latest.setBefore(weg.get(weg.size() - 2));
 			tmplist.clear();
 
 			for (Punkt next : latest.getNext()) {
@@ -166,8 +179,10 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 		}
 
-		for (Punkt pascal : weg) {
-			System.out.println(pascal.getName());
+		for (int i = 1; i < weg.size(); i++) {
+			System.out.println("Der Weg geht ueber "
+					+ weg.get(i).getBefore().getName() + " zu "
+					+ weg.get(i).getName());
 		}
 
 		return output;
