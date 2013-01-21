@@ -3,13 +3,18 @@ package ch.zhaw.shortestPath.model;
 import java.util.ArrayList;
 
 public class DijkstraAlgorithm implements IPathAlgorithm {
+	private static ArrayList<String> punkte;
+	static ArrayList<String> kanten = new ArrayList<String>();
+	static ArrayList<String> start = new ArrayList<String>();
+	static ArrayList<String> ziel = new ArrayList<String>();
+	static ArrayList<String> weg = new ArrayList<String>();
 
-	public static void main(String[] args) {
-		ArrayList<String> punkte = new ArrayList<String>();
-		ArrayList<String> kanten = new ArrayList<String>();
-		ArrayList<String> start = new ArrayList<String>();
-		ArrayList<String> ziel = new ArrayList<String>();
-		ArrayList<String> weg = new ArrayList<String>();
+	public static void createTestSzenario() {
+		punkte = new ArrayList<String>();
+		kanten = new ArrayList<String>();
+		start = new ArrayList<String>();
+		ziel = new ArrayList<String>();
+		weg = new ArrayList<String>();
 
 		// a1, b2, c3, d4, e5, f6, g7, h8, i9
 		punkte.add("A");
@@ -56,6 +61,13 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		ziel.add("H");
 		ziel.add("I");
 
+	}
+
+	public static void count(ArrayList<String> weg) {
+
+	}
+
+	public static void buildPath() {
 		for (String kant : kanten) {
 			String a = kant.split("-")[0];
 			String b = kant.split("-")[1];
@@ -71,9 +83,13 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 			// }
 			// }
 			// }
-
 		}
 
+	}
+
+	public static void main(String[] args) {
+		createTestSzenario();
+		buildPath();
 	}
 
 	@Override
