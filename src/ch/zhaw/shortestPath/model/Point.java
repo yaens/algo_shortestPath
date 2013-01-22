@@ -6,8 +6,30 @@ import java.util.List;
 public class Point {
 	String name;
 	List<Point> next = new ArrayList<Point>();
+	List<Edge> edges = new ArrayList<Edge>();
 	Point before;
-	int distance;
+	int distanceToStart;
+	boolean status;
+
+	public boolean getStatus() {
+		return status;
+	}
+
+	public void setGreenStatus() {
+		status = true;
+	}
+
+	public void setRedStatus() {
+		status = false;
+	}
+
+	public void setEdge(Edge edge) {
+		this.edges.add(edge);
+	}
+
+	public List<Edge> getEdge() {
+		return edges;
+	}
 
 	public Point(String name) {
 		this.name = name;
@@ -38,11 +60,11 @@ public class Point {
 	}
 
 	void setDistance(int distance) {
-		this.distance = distance;
+		this.distanceToStart = distance;
 	}
 
 	int getDistance() {
-		return distance;
+		return distanceToStart;
 	}
 
 }

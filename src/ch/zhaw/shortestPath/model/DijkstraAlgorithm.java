@@ -3,17 +3,11 @@ package ch.zhaw.shortestPath.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 
 public class DijkstraAlgorithm implements IPathAlgorithm {
 	private static List<Edge> originalGraph = new ArrayList<Edge>();
-	private static List<Edge> whiteGraph = new ArrayList<Edge>();
-	private static List<Edge> redGraph = new ArrayList<Edge>();
-	private static List<Edge> greenGraph = new ArrayList<Edge>();
 	private static List<Point> points = new ArrayList<Point>();
-	private static List<Point> path = new ArrayList<Point>();
-	private static List<Point> whitePoints = new ArrayList<Point>();
 	private static List<Point> redPoints = new ArrayList<Point>();
 	private static List<Point> greenPoints = new ArrayList<Point>();
 	private static Point A;
@@ -86,6 +80,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		G.setNext(I);
 		H.setNext(I);
 
+		// a1, b2, c3, d4, e5, f6, g7, h8, i9
 		k1 = new Edge(A, B, 2);
 		k2 = new Edge(A, F, 9);
 		k3 = new Edge(A, G, 15);
@@ -120,28 +115,23 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	}
 
-	public static Edge getEdge(Point from, Point to) {
-		Edge output = null;
-		for (Edge ed : originalGraph) {
-			if (ed.from == from && ed.to == to) {
-				output = ed;
-			}
+	public static void changePointToRed(Point point) {
+		if (point.getStatus()) {
+			redPoints.add(point);
+			greenPoints.remove(point);
 		}
-		return output;
+		point.setRedStatus();
 	}
 
-	public static void switchRedToGreen(Point point) {
+	public static void changePointToGreen(Point point) {
 		redPoints.remove(point);
-		greenPoints.add(point);
+		if (!point.getStatus()) {
+			greenPoints.add(point);
+		}
+		point.setGreenStatus();
 	}
 
-	public static void removeDuplicatePoints(List<Point> list) {
-		HashSet<Point> hashSet = new HashSet<Point>(list);
-		list.clear();
-		list.addAll(hashSet);
-	}
-
-	public static int getLengthFromTo(Point from, Point to) {
+	public static int getDistanceFromTo(Point from, Point to) {
 		int output = 0;
 		for (Edge ed : originalGraph) {
 			Point start = ed.getFrom();
@@ -156,103 +146,127 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 	public static void main(String[] args) {
 		createTestSzenario();
 		work(originalGraph, A);
+		// getShortestPath(A, F);
+	}
+
+	private static void getShortestPath(Point from, Point to) {
+		System.out.println("kuerzester Pfad:");
+		int maximalRuns = points.size() * points.size();
+		String startPoint = from.getName();
+		String endPoint = to.getName();
+
+		// System.out.println(startPoint);
+
+		int length = 0;
+		for (int i = 0; i < maximalRuns; i++) {
+
+			if (to.getBefore().equals(from)) {
+				System.out.println(endPoint);
+				System.out.println(length);
+				break;
+			}
+
+			Point next = to.getBefore();
+			to = next;
+			System.out.println(to.getBefore().getName());
+			length = (length + to.getDistance());
+		}
 	}
 
 	public static void work(List<Edge> graph, Point start) {
 
-		// try
-		greenPoints.add(start);
-
-		path.add(start);
-
-		for (Point next : start.getNext()) {
-			// try
-			redPoints.add(next);
-
-			int distanceStartNext = getLengthFromTo(start, next);
-			next.setDistance(distanceStartNext);
+		// preparation for all points
+		for (Point all : points) {
+			all.setDistance(Integer.MAX_VALUE);
+			all.setBefore(null);
+			all.setRedStatus();
+			redPoints.add(all);
 		}
 
-		for (Point red : redPoints) {
-			Edge edge = getEdge(start, red);
-			greenGraph.add(edge);
+		// preparation for startpoint
+		changePointToGreen(start);
+		start.setDistance(0);
+		start.setBefore(start);
+
+		// worst-case => dijkstra: (points * points), bellman-ford: (points *
+		// edges)
+		int maximalRuns = points.size() * points.size();
+
+		// loop for djikstra
+		for (int i = 0; i < maximalRuns; i++) {
+
+			// first loop with startPoint
+			if (i == 0) {
+				for (Point next : start.getNext()) {
+
+					// get distance from start to neighboors
+					int distanceStartToNext = getDistanceFromTo(start, next);
+
+					// set distance
+					next.setDistance(distanceStartToNext);
+
+					// set start as beforePoint
+					next.setBefore(start);
+				}
+			}
+
+			// stop the loop, if now points are red
+			if (redPoints.size() == 0) {
+				break;
+			}
+
+			// sort the red points
+			Collections.sort(redPoints, sortByDistance);
+
+			// take the point with the smallest distance
+			Point nextPoint = redPoints.get(0);
+
+			// make the nextPoint green
+			changePointToGreen(nextPoint);
+
+			// loop trough all neighboors
+			for (Point next : nextPoint.getNext()) {
+
+				// make the point red
+				changePointToRed(next);
+
+				// get distance between the neighboors
+				int distanceNextPointToNext = getDistanceFromTo(nextPoint, next);
+
+				// count the new distance
+				int tmpDistance = (nextPoint.getDistance() + distanceNextPointToNext);
+
+				// if the distance is closer, set the new distance and
+				// beforePoint
+				if (tmpDistance <= next.getDistance()) {
+					next.setDistance(tmpDistance);
+					next.setBefore(nextPoint);
+				}
+
+				// make the point green
+				changePointToGreen(nextPoint);
+
+			}
 		}
 
-		// sort the red points
-		Collections.sort(redPoints, sortByDistance);
-
-		Point nextPoint = redPoints.get(0);
-		switchRedToGreen(nextPoint);
-
-		for (Point next : nextPoint.getNext()) {
-			// try
-			redPoints.add(next);
-
-			Point latest = nextPoint.getBefore();
-			int distanceLatestNext = getLengthFromTo(latest, next);
-			System.out.println(next.getDistance());
-			System.out.println(next.getName());
-			System.out.println(distanceLatestNext);
-			// next.setDistance(latest.getDistance() + distanceLatestNext);
+		// show all points
+		for (Point all : points) {
+			System.out.println(all.getName() + all.getBefore().getName()
+					+ all.getDistance());
 		}
 
-		// only one same point in the list...
-		removeDuplicatePoints(redPoints);
-
+		// show all red points
 		System.out.println("red points");
 		for (Point red : redPoints) {
 			System.out.println(red.getName());
 		}
+
+		// show all green points
 		System.out.println("green points");
 		for (Point green : greenPoints) {
 			System.out.println(green.getName());
 		}
-		System.out.println("green edges");
-		for (Edge g : greenGraph) {
-			System.out.println(g.getFrom().getName() + " - "
-					+ g.getTo().getName() + "");
-		}
-		System.out.println("red edges");
-		for (Edge g : redGraph) {
-			System.out.println(g.getFrom().getName() + " - "
-					+ g.getTo().getName() + "");
-		}
 
-		// im worst case muss der algo (anzahl konten * anzahl kanten)
-		// durchlaufen (bellmann-ford)
-		// int maximalRuns = graph.size() * punkte.size();
-
-		// im worst case muss der algo (anzahl knoten * anzahl anzahl)
-		// durchlaufen (Dijkstra)
-		int maximalRuns = points.size() * points.size();
-
-		for (int i = 0; i < maximalRuns; i++) {
-
-			Collections.sort(greenPoints, sortByDistance);
-
-			if (greenPoints.size() == 0) {
-				break;
-			}
-
-			path.add(greenPoints.get(0));
-			Point latest = path.get(path.size() - 1);
-			Point before = path.get(path.size() - 2);
-			latest.setBefore(before);
-			greenPoints.clear();
-
-			for (Point next : latest.getNext()) {
-				int distanceLatestNext = getLengthFromTo(latest, next);
-				next.setDistance(latest.getDistance() + distanceLatestNext);
-				greenPoints.add(next);
-			}
-
-		}
-
-		for (int i = 1; i < path.size(); i++) {
-			String from = path.get(i).getBefore().getName();
-			String to = path.get(i).getName();
-			System.out.println("Der Weg geht ueber " + from + " zu " + to);
-		}
 	}
 
 	@Override
