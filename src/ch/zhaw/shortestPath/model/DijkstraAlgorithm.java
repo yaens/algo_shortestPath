@@ -10,6 +10,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 	private static List<Point> points = new ArrayList<Point>();
 	private static List<Point> redPoints = new ArrayList<Point>();
 	private static List<Point> greenPoints = new ArrayList<Point>();
+	private static List<Point> shortestPath = new ArrayList<Point>();
 	private static Point A;
 	private static Point B;
 	private static Point C;
@@ -84,7 +85,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		k1 = new Edge(A, B, 2);
 		k2 = new Edge(A, F, 9);
 		k3 = new Edge(A, G, 15);
-		k4 = new Edge(B, C, 4);
+		k4 = new Edge(B, C, 2);
 		k5 = new Edge(B, G, 6);
 		k6 = new Edge(C, I, 15);
 		k7 = new Edge(C, D, 2);
@@ -143,34 +144,38 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		return output;
 	}
 
-	public static void main(String[] args) {
-		createTestSzenario();
-		work(originalGraph, A);
-		// getShortestPath(A, F);
-	}
-
 	private static void getShortestPath(Point from, Point to) {
 		System.out.println("kuerzester Pfad:");
+
+		// add latest point to list
+		shortestPath.add(to);
+		System.out.println("Laenge:   " + to.getDistance() + "");
+
 		int maximalRuns = points.size() * points.size();
-		String startPoint = from.getName();
-		String endPoint = to.getName();
 
-		// System.out.println(startPoint);
-
-		int length = 0;
 		for (int i = 0; i < maximalRuns; i++) {
 
+			// stop the loop, if the beforePoint is the startPoint
 			if (to.getBefore().equals(from)) {
-				System.out.println(endPoint);
-				System.out.println(length);
+				shortestPath.add(from);
 				break;
 			}
 
+			// add the beforePoint to the list
+			shortestPath.add(to.getBefore());
+
+			// set the beforePoint as activePoint for the next looping
 			Point next = to.getBefore();
 			to = next;
-			System.out.println(to.getBefore().getName());
-			length = (length + to.getDistance());
 		}
+
+		// change the order for the list
+		Collections.reverse(shortestPath);
+
+		for (Point point : shortestPath) {
+			System.out.println(point.getName());
+		}
+
 	}
 
 	public static void work(List<Edge> graph, Point start) {
@@ -188,8 +193,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		start.setDistance(0);
 		start.setBefore(start);
 
-		// worst-case => dijkstra: (points * points), bellman-ford: (points *
-		// edges)
+		// worst-case => dijkstra: (points * points)
 		int maximalRuns = points.size() * points.size();
 
 		// loop for djikstra
@@ -249,24 +253,38 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 			}
 		}
 
-		// show all points
+		// show all points, beforePoints and distance
+		System.out.println("Point - BeforePoint - Distance");
 		for (Point all : points) {
-			System.out.println(all.getName() + all.getBefore().getName()
+			System.out.println(all.getName() + "     -      "
+					+ all.getBefore().getName() + "      -      "
 					+ all.getDistance());
 		}
 
 		// show all red points
 		System.out.println("red points");
+		if (redPoints.size() == 0) {
+			System.out.println("-- empty --");
+		}
 		for (Point red : redPoints) {
 			System.out.println(red.getName());
 		}
 
 		// show all green points
 		System.out.println("green points");
+		if (greenPoints.size() == 0) {
+			System.out.println("-- empty --");
+		}
 		for (Point green : greenPoints) {
 			System.out.println(green.getName());
 		}
 
+	}
+
+	public static void main(String[] args) {
+		createTestSzenario();
+		work(originalGraph, A);
+		getShortestPath(A, I);
 	}
 
 	@Override
