@@ -36,6 +36,21 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 	private static Edge k13;
 	private static Edge k14;
 	private static Edge k15;
+	private static Edge k16;
+	private static Edge k17;
+	private static Edge k18;
+	private static Edge k19;
+	private static Edge k20;
+	private static Edge k21;
+	private static Edge k22;
+	private static Edge k23;
+	private static Edge k24;
+	private static Edge k25;
+	private static Edge k26;
+	private static Edge k27;
+	private static Edge k28;
+	private static Edge k29;
+	private static Edge k30;
 
 	static Comparator<Point> sortByDistance = new Comparator<Point>() {
 		public int compare(Point point1, Point point2) {
@@ -98,6 +113,21 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 		k13 = new Edge(G, H, 15);
 		k14 = new Edge(G, I, 2);
 		k15 = new Edge(H, I, 4);
+		k16 = new Edge(B, A, 2);
+		k17 = new Edge(F, A, 9);
+		k18 = new Edge(G, A, 15);
+		k19 = new Edge(C, B, 1);
+		k20 = new Edge(G, B, 6);
+		k21 = new Edge(I, C, -15);
+		k22 = new Edge(D, C, 2);
+		k23 = new Edge(I, D, 1);
+		k24 = new Edge(E, D, 1);
+		k25 = new Edge(H, E, 3);
+		k26 = new Edge(F, E, 6);
+		k27 = new Edge(H, F, 11);
+		k28 = new Edge(H, G, 15);
+		k29 = new Edge(I, G, 2);
+		k30 = new Edge(I, H, 4);
 
 		originalGraph.add(k1);
 		originalGraph.add(k2);
@@ -114,7 +144,21 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 		originalGraph.add(k13);
 		originalGraph.add(k14);
 		originalGraph.add(k15);
-
+		originalGraph.add(k16);
+		originalGraph.add(k17);
+		originalGraph.add(k18);
+		originalGraph.add(k19);
+		originalGraph.add(k20);
+		originalGraph.add(k21);
+		originalGraph.add(k22);
+		originalGraph.add(k23);
+		originalGraph.add(k24);
+		originalGraph.add(k25);
+		originalGraph.add(k26);
+		originalGraph.add(k27);
+		originalGraph.add(k28);
+		originalGraph.add(k29);
+		originalGraph.add(k30);
 	}
 
 	public static int getDistanceFromTo(Point from, Point to) {
@@ -209,7 +253,7 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 	public static void main(String[] args) {
 		createTestSzenario();
 		work(originalGraph, A);
-		getShortestPath(A, H);
+		getShortestPath(A, E);
 	}
 
 	@Override
