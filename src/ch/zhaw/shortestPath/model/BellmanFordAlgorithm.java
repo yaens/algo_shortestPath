@@ -101,33 +101,33 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 		k1 = new Edge(A, B, 2);
 		k2 = new Edge(A, F, 9);
 		k3 = new Edge(A, G, 15);
-		k4 = new Edge(B, C, 1);
+		k4 = new Edge(B, C, -1);
 		k5 = new Edge(B, G, 6);
-		k6 = new Edge(C, I, -15);
+		k6 = new Edge(C, I, 15);
 		k7 = new Edge(C, D, 2);
 		k8 = new Edge(D, I, 1);
 		k9 = new Edge(D, E, 1);
-		k10 = new Edge(E, H, 3);
-		k11 = new Edge(E, F, 6);
+		k10 = new Edge(E, H, -3);
+		k11 = new Edge(E, F, -6);
 		k12 = new Edge(F, H, 11);
 		k13 = new Edge(G, H, 15);
 		k14 = new Edge(G, I, 2);
 		k15 = new Edge(H, I, 4);
-		k16 = new Edge(B, A, 2);
+		k16 = new Edge(B, A, -2);
 		k17 = new Edge(F, A, 9);
 		k18 = new Edge(G, A, 15);
 		k19 = new Edge(C, B, 1);
 		k20 = new Edge(G, B, 6);
-		k21 = new Edge(I, C, -15);
+		k21 = new Edge(I, C, -3);
 		k22 = new Edge(D, C, 2);
-		k23 = new Edge(I, D, 1);
+		k23 = new Edge(I, D, -1);
 		k24 = new Edge(E, D, 1);
 		k25 = new Edge(H, E, 3);
 		k26 = new Edge(F, E, 6);
 		k27 = new Edge(H, F, 11);
 		k28 = new Edge(H, G, 15);
 		k29 = new Edge(I, G, 2);
-		k30 = new Edge(I, H, 4);
+		k30 = new Edge(I, H, -4);
 
 		originalGraph.add(k1);
 		originalGraph.add(k2);
@@ -224,6 +224,22 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 		// worst-case => bellman-ford: (points * edges)
 
 		// loop for bellman-ford
+		for (int i = 0; i < (points.size() - 1); i++) {
+			for (Edge edge : originalGraph) {
+
+				Point from = edge.getFrom();
+				Point to = edge.getTo();
+
+				int fromDistance = from.getDistance();
+				int edgeDistance = getDistanceFromTo(from, to);
+				int toDistance = to.getDistance();
+
+				if ((fromDistance + edgeDistance) < toDistance) {
+					to.setDistance((fromDistance + edgeDistance));
+					to.setBefore(from);
+				}
+			}
+		}
 
 		for (Edge edge : originalGraph) {
 
@@ -235,8 +251,7 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 			int toDistance = to.getDistance();
 
 			if ((fromDistance + edgeDistance) < toDistance) {
-				to.setDistance((fromDistance + edgeDistance));
-				to.setBefore(from);
+				System.out.println("Graph contains a negative-weight cycle");
 			}
 		}
 
@@ -253,7 +268,7 @@ public class BellmanFordAlgorithm implements IPathAlgorithm {
 	public static void main(String[] args) {
 		createTestSzenario();
 		work(originalGraph, A);
-		getShortestPath(A, E);
+		getShortestPath(A, I);
 	}
 
 	@Override
