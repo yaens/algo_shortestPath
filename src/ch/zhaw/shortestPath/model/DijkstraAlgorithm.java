@@ -6,54 +6,54 @@ import java.util.Comparator;
 import java.util.List;
 
 public class DijkstraAlgorithm implements IPathAlgorithm {
-	private static List<Edge> originalGraph = new ArrayList<Edge>();
-	private static List<Point> points = new ArrayList<Point>();
-	private static List<Point> redPoints = new ArrayList<Point>();
-	private static List<Point> greenPoints = new ArrayList<Point>();
-	private static List<Point> shortestPath = new ArrayList<Point>();
-	private static Point A;
-	private static Point B;
-	private static Point C;
-	private static Point D;
-	private static Point E;
-	private static Point F;
-	private static Point G;
-	private static Point H;
-	private static Point I;
-	private static Edge k1;
-	private static Edge k2;
-	private static Edge k3;
-	private static Edge k4;
-	private static Edge k5;
-	private static Edge k6;
-	private static Edge k7;
-	private static Edge k8;
-	private static Edge k9;
-	private static Edge k10;
-	private static Edge k11;
-	private static Edge k12;
-	private static Edge k13;
-	private static Edge k14;
-	private static Edge k15;
+	private static List<Connector> originalGraph = new ArrayList<Connector>();
+	private static List<Node> points = new ArrayList<Node>();
+	private static List<Node> redPoints = new ArrayList<Node>();
+	private static List<Node> greenPoints = new ArrayList<Node>();
+	private static List<Node> shortestPath = new ArrayList<Node>();
+	private static Node A;
+	private static Node B;
+	private static Node C;
+	private static Node D;
+	private static Node E;
+	private static Node F;
+	private static Node G;
+	private static Node H;
+	private static Node I;
+	private static Connector k1;
+	private static Connector k2;
+	private static Connector k3;
+	private static Connector k4;
+	private static Connector k5;
+	private static Connector k6;
+	private static Connector k7;
+	private static Connector k8;
+	private static Connector k9;
+	private static Connector k10;
+	private static Connector k11;
+	private static Connector k12;
+	private static Connector k13;
+	private static Connector k14;
+	private static Connector k15;
 
-	static Comparator<Point> sortByDistance = new Comparator<Point>() {
-		public int compare(Point point1, Point point2) {
-			return point1.getDistance() - point2.getDistance();
+	static Comparator<Node> sortByDistance = new Comparator<Node>() {
+		public int compare(Node point1, Node point2) {
+			return (int) (point1.getDistance() - point2.getDistance());
 		}
 	};
 
 	public static void createTestSzenario() {
 
 		// a1, b2, c3, d4, e5, f6, g7, h8, i9
-		A = new Point("A");
-		B = new Point("B");
-		C = new Point("C");
-		D = new Point("D");
-		E = new Point("E");
-		F = new Point("F");
-		G = new Point("G");
-		H = new Point("H");
-		I = new Point("I");
+		A = new Node("A");
+		B = new Node("B");
+		C = new Node("C");
+		D = new Node("D");
+		E = new Node("E");
+		F = new Node("F");
+		G = new Node("G");
+		H = new Node("H");
+		I = new Node("I");
 
 		points.add(A);
 		points.add(B);
@@ -82,21 +82,21 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		H.setNext(I);
 
 		// a1, b2, c3, d4, e5, f6, g7, h8, i9
-		k1 = new Edge(A, B, 2);
-		k2 = new Edge(A, F, 9);
-		k3 = new Edge(A, G, 15);
-		k4 = new Edge(B, C, 2);
-		k5 = new Edge(B, G, 6);
-		k6 = new Edge(C, I, 15);
-		k7 = new Edge(C, D, 2);
-		k8 = new Edge(D, I, 2);
-		k9 = new Edge(D, E, 1);
-		k10 = new Edge(E, H, 3);
-		k11 = new Edge(E, F, 6);
-		k12 = new Edge(F, H, 11);
-		k13 = new Edge(G, H, 15);
-		k14 = new Edge(G, I, 2);
-		k15 = new Edge(H, I, 9);
+		k1 = new Connector(A, B, 2);
+		k2 = new Connector(A, F, 9);
+		k3 = new Connector(A, G, 15);
+		k4 = new Connector(B, C, 2);
+		k5 = new Connector(B, G, 6);
+		k6 = new Connector(C, I, 15);
+		k7 = new Connector(C, D, 2);
+		k8 = new Connector(D, I, 2);
+		k9 = new Connector(D, E, 1);
+		k10 = new Connector(E, H, 3);
+		k11 = new Connector(E, F, 6);
+		k12 = new Connector(F, H, 11);
+		k13 = new Connector(G, H, 15);
+		k14 = new Connector(G, I, 2);
+		k15 = new Connector(H, I, 9);
 
 		originalGraph.add(k1);
 		originalGraph.add(k2);
@@ -116,7 +116,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	}
 
-	public static void changePointToRed(Point point) {
+	public static void changePointToRed(Node point) {
 		if (point.getStatus()) {
 			redPoints.add(point);
 			greenPoints.remove(point);
@@ -124,7 +124,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		point.setRedStatus();
 	}
 
-	public static void changePointToGreen(Point point) {
+	public static void changePointToGreen(Node point) {
 		redPoints.remove(point);
 		if (!point.getStatus()) {
 			greenPoints.add(point);
@@ -132,11 +132,12 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		point.setGreenStatus();
 	}
 
-	public static int getDistanceFromTo(Point from, Point to) {
-		int output = 0;
-		for (Edge ed : originalGraph) {
-			Point start = ed.getFrom();
-			Point end = ed.getTo();
+	public static double getDistanceFromTo(Node from, Node to, List<Connector> orgGraph) {
+		originalGraph = orgGraph;
+		double output = 0;
+		for (Connector ed : originalGraph) {
+			Node start = ed.getFrom();
+			Node end = ed.getTo();
 			if (start == from && end == to) {
 				output = ed.getDistance();
 			}
@@ -144,7 +145,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		return output;
 	}
 
-	private static void getShortestPath(Point from, Point to) {
+	private static void getShortestPath(Node from, Node to) {
 		System.out.println("kuerzester Pfad:");
 
 		// add latest point to list
@@ -165,23 +166,25 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 			shortestPath.add(to.getBefore());
 
 			// set the beforePoint as activePoint for the next looping
-			Point next = to.getBefore();
+			Node next = to.getBefore();
 			to = next;
 		}
 
 		// change the order for the list
 		Collections.reverse(shortestPath);
 
-		for (Point point : shortestPath) {
+		for (Node point : shortestPath) {
 			System.out.println(point.getName());
 		}
 
 	}
 
-	public static void work(List<Edge> graph, Point start) {
+	public static void work(List<Connector> graph, Node start, List<Node> allPoints) {
 
+		points = allPoints;
+		
 		// preparation for all points
-		for (Point all : points) {
+		for (Node all : points) {
 			all.setDistance(Integer.MAX_VALUE);
 			all.setBefore(null);
 			all.setRedStatus();
@@ -201,10 +204,10 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 			// first loop with startPoint
 			if (i == 0) {
-				for (Point next : start.getNext()) {
+				for (Node next : start.getNext()) {
 
 					// get distance from start to neighboors
-					int distanceStartToNext = getDistanceFromTo(start, next);
+					double distanceStartToNext = getDistanceFromTo(start, next,graph);
 
 					// set distance
 					next.setDistance(distanceStartToNext);
@@ -223,22 +226,22 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 			Collections.sort(redPoints, sortByDistance);
 
 			// take the point with the smallest distance
-			Point nextPoint = redPoints.get(0);
+			Node nextPoint = redPoints.get(0);
 
 			// make the nextPoint green
 			changePointToGreen(nextPoint);
 
 			// loop trough all neighboors
-			for (Point next : nextPoint.getNext()) {
+			for (Node next : nextPoint.getNext()) {
 
 				// make the point red
 				changePointToRed(next);
 
 				// get distance between the neighboors
-				int distanceNextPointToNext = getDistanceFromTo(nextPoint, next);
+				double distanceNextPointToNext = getDistanceFromTo(nextPoint, next,graph);
 
 				// count the new distance
-				int tmpDistance = (nextPoint.getDistance() + distanceNextPointToNext);
+				double tmpDistance = (nextPoint.getDistance() + distanceNextPointToNext);
 
 				// if the distance is closer, set the new distance and
 				// beforePoint
@@ -255,7 +258,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 		// show all points, beforePoints and distance
 		System.out.println("Point - BeforePoint - Distance");
-		for (Point all : points) {
+		for (Node all : points) {
 			System.out.println(all.getName() + "     -      "
 					+ all.getBefore().getName() + "      -      "
 					+ all.getDistance());
@@ -266,7 +269,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		if (redPoints.size() == 0) {
 			System.out.println("-- empty --");
 		}
-		for (Point red : redPoints) {
+		for (Node red : redPoints) {
 			System.out.println(red.getName());
 		}
 
@@ -275,7 +278,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		if (greenPoints.size() == 0) {
 			System.out.println("-- empty --");
 		}
-		for (Point green : greenPoints) {
+		for (Node green : greenPoints) {
 			System.out.println(green.getName());
 		}
 
@@ -283,7 +286,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	public static void main(String[] args) {
 		createTestSzenario();
-		work(originalGraph, A);
+		//work(originalGraph, A);
 		getShortestPath(A, I);
 	}
 

@@ -29,6 +29,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
+import ch.zhaw.shortestPath.model.DijkstraAlgorithm;
+
 public class WorldWindView extends AVListImpl
 {
     // ===================== Control Panel ======================= //
@@ -39,8 +41,8 @@ public class WorldWindView extends AVListImpl
     {
         private final WorldWindow wwd;
         
-        private final NodeBuilder nodeBuilder;
-        private final ConnectorBuilder connectorBuilder;
+        private NodeBuilder nodeBuilder;
+        private ConnectorBuilder connectorBuilder;
         private JButton newButton;
         private JButton newNodeButton;
         private JButton pauseButton;
@@ -50,16 +52,32 @@ public class WorldWindView extends AVListImpl
 
 		private JButton endNodeButton;
 
-        public LinePanel(WorldWindow wwd, NodeBuilder nodeBuilder,ConnectorBuilder connectorBuilder)
+		private JButton burronStartAlgoDijkstra;
+
+        public LinePanel(WorldWindow wwd)
         {
             super(new BorderLayout());
             
-            
             this.wwd = wwd;
             LayerList layers = this.wwd.getModel().getLayers();
-            //layers.add(new OSMMapnikLayer());
-            this.nodeBuilder = nodeBuilder;
-            this.connectorBuilder = connectorBuilder;
+            layers.add(new OSMMapnikLayer());
+            
+            
+            RenderableLayer nodeLayer = new RenderableLayer();
+            nodeLayer.setName("Node Layer");
+            RenderableLayer connectorLayer = new RenderableLayer();
+            nodeLayer.setName("connector Layer");
+            
+            layers.add(connectorLayer);
+            layers.add(nodeLayer);
+            
+            layers = this.wwd.getModel().getLayers();
+            
+            this.connectorBuilder = new ConnectorBuilder(wwd, connectorLayer);
+            this.nodeBuilder = new NodeBuilder(wwd,nodeLayer);
+            
+
+            
             this.makePanel(new Dimension(200, 400));
             connectorBuilder.addPropertyChangeListener(new PropertyChangeListener()
             {
@@ -75,8 +93,8 @@ public class WorldWindView extends AVListImpl
                     fillPointsNodePanel();
                 }
             });
-            addExtraLayer();
-            
+
+            this.addExtraLayer();
         }
         
         private void addExtraLayer(){
@@ -88,8 +106,11 @@ public class WorldWindView extends AVListImpl
             //this.firePropertyChange("LayersPanelUpdated", null, layer);
             for(Layer layer:layers){
             	//layer.setEnabled(false);
-            	if(layer.getName().contains("Open")){
-            		layer.setEnabled(true);
+            	if(layer.getName().contains("Place")){
+            		layer.setEnabled(false);
+            	}
+            	if(layer.getName().contains("Landsat")){
+            		layer.setEnabled(false);
             	}
             }
             
@@ -99,8 +120,18 @@ public class WorldWindView extends AVListImpl
         private void makePanel(Dimension size)
         {
         	JPanel buttonPanelNode = new JPanel(new GridLayout(1, 2, 5, 5));
+        	burronStartAlgoDijkstra = new JButton("Dijkstra");
         	newNodeButton = new JButton("new Node");
         	endNodeButton = new JButton("Stop");
+        	
+        	
+        	burronStartAlgoDijkstra.addActionListener(new ActionListener(){
+        		public void actionPerformed(ActionEvent actionEvent)
+                {
+        			DijkstraAlgorithm.work(connectorBuilder.getAllConnector(), nodeBuilder.getNodes().get(0),nodeBuilder.getNodes());
+                }
+        	});
+        	
         	newNodeButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent actionEvent)
@@ -134,6 +165,7 @@ public class WorldWindView extends AVListImpl
         	
         	buttonPanelNode.add(newNodeButton);
         	buttonPanelNode.add(endNodeButton);
+        	buttonPanelNode.add(burronStartAlgoDijkstra);
         	
             JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
             newButton = new JButton("New");
@@ -288,9 +320,11 @@ public class WorldWindView extends AVListImpl
         public AppFrame()
         {
             super(true, false, false);
-            ConnectorBuilder connectorBuilder = new ConnectorBuilder(this.getWwd(), null);
-            NodeBuilder nodeBuilder = new NodeBuilder(this.getWwd(),null);
-            this.getContentPane().add(new LinePanel(this.getWwd(),nodeBuilder,connectorBuilder), BorderLayout.WEST);
+            LayerList layers = this.getWwd().getModel().getLayers();
+            AnnotationLayer anLayer = new AnnotationLayer();
+            anLayer.setName("Label Layer");
+            layers.add(anLayer);
+            this.getContentPane().add(new LinePanel(this.getWwd()), BorderLayout.WEST);
         }
     }
 

@@ -1,17 +1,25 @@
 package ch.zhaw.shortestPath.view;
 
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
+import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.event.PositionEvent;
 import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.layers.AnnotationLayer;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.pick.PickedObjectList;
+import gov.nasa.worldwind.render.AnnotationAttributes;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
+import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.ShapeAttributes;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -30,7 +38,12 @@ public class NodeBuilder extends AVListImpl
     private ArrayList<Position> positions = new ArrayList<Position>();
     private final RenderableLayer layer;
     private boolean active = false;
-
+    private AnnotationAttributes defaultAttributes;
+    private AnnotationAttributes attrs;
+	private AnnotationLayer anLayer;
+	private int currentLetter;
+	private AnnotationAttributes geoAttr;
+	
     /**
      * Construct a new line builder using the specified polyline and layer and drawing events from the specified world
      * window. Either or both the polyline and the layer may be null, in which case the necessary object is created.
@@ -44,38 +57,53 @@ public class NodeBuilder extends AVListImpl
         this.wwd = wwd;
         this.nodeList = new ArrayList<Node>();
         this.layer = nodeLayer != null ? nodeLayer : new RenderableLayer();
-        //maybe do this later
-        //this.layer.addRenderable(this.node);
-        this.wwd.getModel().getLayers().add(this.layer);
+        
+        this.currentLetter = 65;
+        
+		this.anLayer = (AnnotationLayer) this.wwd.getModel().getLayers().getLayerByName("Label Layer");
+        
+        defaultAttributes = new AnnotationAttributes();
+        defaultAttributes.setCornerRadius(10);
+        defaultAttributes.setInsets(new Insets(8, 8, 8, 8));
+        defaultAttributes.setBackgroundColor(new Color(0f, 0f, 0f, .5f));
+        defaultAttributes.setTextColor(Color.WHITE);
+        //defaultAttributes.setDrawOffset(new Point(25, 25));
+        defaultAttributes.setDistanceMinScale(.5);
+        defaultAttributes.setDistanceMaxScale(2);
+        defaultAttributes.setDistanceMinOpacity(.5);
+        //defaultAttributes.setLeaderGapWidth(14);
+        defaultAttributes.setDrawOffset(new Point(0, 0));
+        
+        attrs = new AnnotationAttributes();
+        attrs.setAdjustWidthToText(AVKey.SIZE_FIT_TEXT);
+        attrs.setFrameShape(AVKey.SHAPE_RECTANGLE);
+        attrs.setDrawOffset(new Point(0, 10));
+        attrs.setLeaderGapWidth(5);
+        attrs.setTextColor(Color.BLACK);
+        attrs.setBackgroundColor(new Color(1f, 1f, 1f, 0.8f));
+        attrs.setCornerRadius(5);
+        attrs.setBorderColor(new Color(0xababab));
+        attrs.setFont(Font.decode("Arial-PLAIN-12"));
+        attrs.setTextAlign(AVKey.CENTER);
+        attrs.setInsets(new Insets(5, 5, 5, 5));
+        
+        geoAttr = new AnnotationAttributes();
+        geoAttr.setDefaults(defaultAttributes);
+        geoAttr.setAdjustWidthToText(AVKey.SIZE_FIT_TEXT);
+        geoAttr.setFrameShape(AVKey.SHAPE_NONE);  // No frame
+        geoAttr.setFont(Font.decode("Arial-PLAIN-12"));
+        geoAttr.setTextColor(Color.BLACK);
+        geoAttr.setTextAlign(AVKey.CENTER);
+        geoAttr.setLeaderGapWidth(4);
+        geoAttr.setDrawOffset(new Point(0, 5)); // centered just above
+        //geoAttr.setEffect(AVKey.TEXT_EFFECT_OUTLINE);  // Black outline
+        geoAttr.setBackgroundColor(Color.BLACK);
+        
+        int size = this.wwd.getModel().getLayers().size();
+        //this.wwd.getModel().getLayers().set(size -1 , this.layer);
 
         this.wwd.getInputHandler().addMouseListener(new MouseAdapter()
         {
-/*            public void mousePressed(MouseEvent mouseEvent)
-            {
-                if (armed && mouseEvent.getButton() == MouseEvent.BUTTON1)
-                {
-                    if (armed && (mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)
-                    {
-                        if (!mouseEvent.isControlDown())
-                        {
-                            active = true;
-                            addPosition();
-                        }
-                    }
-                    mouseEvent.consume();
-                }
-            }
-
-            public void mouseReleased(MouseEvent mouseEvent)
-            {
-                if (armed && mouseEvent.getButton() == MouseEvent.BUTTON1)
-                {
-                    if (positions.size() == 1)
-                        removePosition();
-                    active = false;
-                    mouseEvent.consume();
-                }
-            }*/
 
             public void mouseClicked(MouseEvent mouseEvent)
             {
@@ -194,7 +222,13 @@ public class NodeBuilder extends AVListImpl
         attr.setDrawInterior(true);
         
         this.node.setAttributes(attr);
-        
+        char c = (char)this.currentLetter;
+        String text = String.valueOf(c);
+        this.node.setName(text);
+        GlobeAnnotation anno = new GlobeAnnotation(text,curPos, this.attrs);
+        anno.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+        anLayer.addAnnotation(anno);
+        this.currentLetter++;
         nodeList.add(this.node);
         
         this.firePropertyChange("LineBuilder.AddPosition", null, curPos);

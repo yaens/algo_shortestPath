@@ -1,40 +1,53 @@
 package ch.zhaw.shortestPath.model;
 
+import gov.nasa.worldwind.render.BasicShapeAttributes;
+import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.Polyline;
-import gov.nasa.worldwindx.examples.util.DirectedPath;
+import gov.nasa.worldwind.render.ShapeAttributes;
 
-public class Connector extends Polyline {
-	private Node from;
-	private Node to;
+public class Connector extends Polyline{
+	double distance;
+	Node from;
+	Node to;
+
+	Connector(Node from, Node to, double distance) {
+		this.from = from;
+		this.to = to;
+		this.distance = distance;
+	}
 	
-	private double lenght;
-
 	public Connector(Node from){
 		super();
-		this.setFromNode(from);
+		this.setFrom(from);
 		this.setFollowTerrain(true);
-	}
-	public double getLenght() {
-		return lenght;
+        ShapeAttributes attrs = new BasicShapeAttributes();
+        attrs.setOutlineMaterial(Material.RED);
+        attrs.setOutlineWidth(2d);
+        attrs.setOutlineWidth(2.0);
+       
 	}
 
-	public void setLenght(double lenght) {
-		this.lenght = lenght;
+	public double getDistance() {
+		return distance;
 	}
-	
-	public Node getFromNode() {
+
+	public void setDistance(double distance) {
+		this.distance = distance;
+	}
+
+	public Node getFrom() {
 		return from;
 	}
 
-	public void setFromNode(Node from) {
+	public void setFrom(Node from) {
 		this.from = from;
 	}
 
-	public Node getToNode() {
+	public Node getTo() {
 		return to;
 	}
 
-	public void setToNode(Node to) {
+	public void setTo(Node to) {
 		this.to = to;
 	}
 
