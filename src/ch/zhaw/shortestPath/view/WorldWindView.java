@@ -52,7 +52,7 @@ public class WorldWindView extends AVListImpl
 
 		private JButton endNodeButton;
 
-		private JButton burronStartAlgoDijkstra;
+		private JButton buttonStartAlgoDijkstra;
 
         public LinePanel(WorldWindow wwd)
         {
@@ -120,15 +120,16 @@ public class WorldWindView extends AVListImpl
         private void makePanel(Dimension size)
         {
         	JPanel buttonPanelNode = new JPanel(new GridLayout(1, 2, 5, 5));
-        	burronStartAlgoDijkstra = new JButton("Dijkstra");
+        	buttonStartAlgoDijkstra = new JButton("Dijkstra");
         	newNodeButton = new JButton("new Node");
         	endNodeButton = new JButton("Stop");
         	
         	
-        	burronStartAlgoDijkstra.addActionListener(new ActionListener(){
+        	buttonStartAlgoDijkstra.addActionListener(new ActionListener(){
         		public void actionPerformed(ActionEvent actionEvent)
                 {
         			DijkstraAlgorithm.work(connectorBuilder.getAllConnector(), nodeBuilder.getNodes().get(0),nodeBuilder.getNodes());
+        			DijkstraAlgorithm.getShortestPath(nodeBuilder.getNodes().get(0), nodeBuilder.getNodes().get(nodeBuilder.getNodes().size()-1));
                 }
         	});
         	
@@ -165,7 +166,7 @@ public class WorldWindView extends AVListImpl
         	
         	buttonPanelNode.add(newNodeButton);
         	buttonPanelNode.add(endNodeButton);
-        	buttonPanelNode.add(burronStartAlgoDijkstra);
+        	buttonPanelNode.add(buttonStartAlgoDijkstra);
         	
             JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
             newButton = new JButton("New");

@@ -145,7 +145,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		return output;
 	}
 
-	private static void getShortestPath(Node from, Node to) {
+	public static void getShortestPath(Node from, Node to) {
 		System.out.println("kuerzester Pfad:");
 
 		// add latest point to list
