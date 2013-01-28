@@ -7,6 +7,7 @@ import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.render.SurfacePolyline;
+import gov.nasa.worldwind.render.markers.BasicMarkerAttributes;
 
 public class Connector extends Polyline{
 	double distance;
@@ -24,6 +25,7 @@ public class Connector extends Polyline{
 		this.color = Color.BLACK;
 		this.lineWidth = 3.0;
 		this.setFollowTerrain(true);
+		BasicMarkerAttributes markerAttributes = new BasicMarkerAttributes ( Material.RED, BasicMarkerShape.HEADING_ARROW, 1d, 10, 5);
 	}
 	
 	public Connector(Node from){

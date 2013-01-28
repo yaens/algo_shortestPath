@@ -195,8 +195,9 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	public static void work(List<Connector> graph, Node start, List<Node> allPoints) {
 
-		points = removeEmptyNodes(allPoints);
+		//points = removeEmptyNodes(allPoints);
 		
+		points = allPoints;
 		// preparation for all points
 		for (Node all : points) {
 			all.setDistance(Integer.MAX_VALUE);
