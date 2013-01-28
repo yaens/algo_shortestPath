@@ -22,7 +22,7 @@ public class Connector extends Polyline{
 	public Connector(){
 		super();
 		this.color = Color.BLACK;
-		this.lineWidth = 2.0;
+		this.lineWidth = 3.0;
 		this.setFollowTerrain(true);
 	}
 	

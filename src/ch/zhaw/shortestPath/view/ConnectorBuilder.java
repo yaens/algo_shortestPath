@@ -102,11 +102,11 @@ public class ConnectorBuilder extends AVListImpl {
         geoAttr = new AnnotationAttributes();
         geoAttr.setDefaults(defaultAttributes);
         geoAttr.setFrameShape(AVKey.SHAPE_NONE);  // No frame
-        geoAttr.setFont(Font.decode("Arial-PLAIN-12"));
+        geoAttr.setFont(Font.decode("Arial-PLAIN-14"));
         geoAttr.setTextColor(Color.BLACK);
         geoAttr.setTextAlign(AVKey.CENTER);
         geoAttr.setDrawOffset(new Point(0, 5)); // centered just above
-        //geoAttr.setEffect(AVKey.TEXT_EFFECT_OUTLINE);  // Black outline
+        geoAttr.setEffect(AVKey.TEXT_EFFECT_OUTLINE);  // Black outline
         geoAttr.setBackgroundColor(Color.BLACK);
         
 		
@@ -151,15 +151,6 @@ public class ConnectorBuilder extends AVListImpl {
 	 */
 	public RenderableLayer getLayer() {
 		return this.layer;
-	}
-
-	/**
-	 * Returns the layer currently used to display the polyline.
-	 * 
-	 * @return the layer holding the polyline.
-	 */
-	public Connector getLine() {
-		return this.line;
 	}
 
 	/**
@@ -311,21 +302,12 @@ public class ConnectorBuilder extends AVListImpl {
 	}
 	
 	private Position calcMiddle(Position pos1,Position pos2){
-		/*Vec4 xyz1 = this.wwd.getModel().getGlobe().computePointFromPosition(pos1);
-		Vec4 xyz2 = this.wwd.getModel().getGlobe().computePointFromPosition(pos2);
-		
-		double newX = (xyz1.x + xyz2.x) / 2;
-		double newY = (xyz1.y + xyz2.y) / 2;
-		double newZ = xyz1.z;
-		
-		Vec4 xyzNew = new Vec4(newX, newY, newZ);*/
 		
 		Angle newLatitude = (pos1.latitude.add(pos2.latitude).divide(2));
 		Angle newLongitude = (pos1.longitude.add(pos2.longitude).divide(2));
 		Angle newLatitude2 = Angle.fromDegrees((pos1.latitude.degrees + pos2.latitude.degrees)/2.0);
 		Angle newLongitude2 = Angle.fromDegrees((pos1.longitude.degrees + pos2.longitude.degrees)/2.0);
-		//return this.wwd.getModel().getGlobe().computePositionFromPoint(xyzNew);
-		//return this.wwd.getModel().getGlobe()(newLatitude, newLatitude, pos1.getAltitude());
+
 		return new Position(newLatitude2,newLongitude2,1000);
 	}
 

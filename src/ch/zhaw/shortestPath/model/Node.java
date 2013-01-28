@@ -73,5 +73,9 @@ public class Node extends SurfaceCircle {
 	double getDistance() {
 		return distanceToStart;
 	}
+	
+	public String toString(){
+		return this.name;
+	}
 
 }

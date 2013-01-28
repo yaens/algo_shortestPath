@@ -22,16 +22,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
+import ch.zhaw.shortestPath.model.Connector;
 import ch.zhaw.shortestPath.model.DijkstraAlgorithm;
 import ch.zhaw.shortestPath.model.Node;
 
@@ -53,6 +57,8 @@ public class WorldWindView extends AVListImpl
         private JButton endButton;
         private JLabel[] pointLabels;
         private JLabel[] pointNodeLabels;
+        
+        private Map<String,Node> comboEntrys;
 
 		private JButton endNodeButton;
 
@@ -60,9 +66,13 @@ public class WorldWindView extends AVListImpl
 
 		private JButton buttonStartBellman;
 
+		private JComboBox chooseEndPoint;
+
         public LinePanel(WorldWindow wwd)
         {
             super(new BorderLayout());
+            
+            this.comboEntrys = new HashMap<String, Node>();
             
             this.wwd = wwd;
             LayerList layers = this.wwd.getModel().getLayers();
@@ -95,7 +105,7 @@ public class WorldWindView extends AVListImpl
             {
                 public void propertyChange(PropertyChangeEvent propertyChangeEvent)
                 {
-                    fillPointsNodePanel();
+                    fillNodePanel();
                 }
             });
 
@@ -127,11 +137,15 @@ public class WorldWindView extends AVListImpl
 
         private void makePanel(Dimension size)
         {
-        	JPanel algoPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        	JPanel algoPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         	buttonStartAlgoDijkstra = new JButton("Dijkstra");
         	buttonStartBellman = new JButton("Bellman");
+        	chooseEndPoint = new JComboBox();
+        	JLabel endpointLabel = new JLabel("Endpoint");
         	algoPanel.add(buttonStartAlgoDijkstra);
         	algoPanel.add(buttonStartBellman);
+        	algoPanel.add(endpointLabel);
+        	algoPanel.add(chooseEndPoint);
         	
         	
         	JPanel buttonPanelNode = new JPanel(new GridLayout(1, 2, 5, 5));
@@ -142,8 +156,9 @@ public class WorldWindView extends AVListImpl
         	buttonStartAlgoDijkstra.addActionListener(new ActionListener(){
         		public void actionPerformed(ActionEvent actionEvent)
                 {
+        			Node endPoint = (Node)chooseEndPoint.getSelectedItem();
         			DijkstraAlgorithm.work(connectorBuilder.getAllConnector(), nodeBuilder.getNodes().get(0),nodeBuilder.getNodes());
-        			List<Node> shortestPath = DijkstraAlgorithm.getShortestPath(nodeBuilder.getNodes().get(0), nodeBuilder.getNodes().get(nodeBuilder.getNodes().size()-1));
+        			List<Node> shortestPath = DijkstraAlgorithm.getShortestPath(nodeBuilder.getNodes().get(0), endPoint);
         			connectorBuilder.paintConnectors(shortestPath);
                 }
         	});
@@ -234,7 +249,7 @@ public class WorldWindView extends AVListImpl
             JPanel pointPanel = new JPanel(new GridLayout(0, 1, 0, 10));
             pointPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-            this.pointLabels = new JLabel[200];
+            this.pointLabels = new JLabel[30];
             for (int i = 0; i < this.pointLabels.length; i++)
             {
                 this.pointLabels[i] = new JLabel("");
@@ -299,21 +314,23 @@ public class WorldWindView extends AVListImpl
 
         private void fillPointsPanel()
         {
-            /*int i = 0;
-            for (Position pos : connectorBuilder.getLine().getPositions())
+            int i = 0;
+            for (Connector pos : connectorBuilder.getAllConnector())
             {
                 if (i == this.pointLabels.length)
                     break;
-
-                String las = String.format("Lat %7.4f\u00B0", pos.getLatitude().getDegrees());
-                String los = String.format("Lon %7.4f\u00B0", pos.getLongitude().getDegrees());
-                pointLabels[i++].setText(las + "  " + los);
+                
+                String from = pos.getFrom().getName();
+                String to = pos.getTo().getName();
+                String dis = String.valueOf((int)pos.getDistance());
+                
+                pointLabels[i++].setText(from + " - " + to + ": Distance : " + dis + " m");
             }
             for (; i < this.pointLabels.length; i++)
-                pointLabels[i++].setText("");*/
+                pointLabels[i++].setText("");
         }
         
-        private void fillPointsNodePanel()
+        private void fillNodePanel()
         {
             int i = 0;
             for (Node pos : nodeBuilder.getNodes())
@@ -324,6 +341,13 @@ public class WorldWindView extends AVListImpl
                 String las = String.format("Lat %7.4f\u00B0", pos.getCenter().getLatitude().getDegrees());
                 String los = String.format("Lon %7.4f\u00B0", pos.getCenter().getLongitude().getDegrees());
                 pointNodeLabels[i++].setText("Name: "+ name);
+                
+                if(!this.comboEntrys.containsKey(pos.getName())&&!pos.getName().equals("A")){
+                	this.chooseEndPoint.addItem(pos);
+                	this.comboEntrys.put(pos.getName(), pos);
+                }
+                
+                
             }
             for (; i < this.pointNodeLabels.length; i++)
             	pointNodeLabels[i++].setText("");

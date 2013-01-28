@@ -144,6 +144,18 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		}
 		return output;
 	}
+	
+	public static List<Node> removeEmptyNodes(List<Node> nodeList){
+		
+		List<Node> newList = new ArrayList<Node>();
+		
+		for(Node node : nodeList){
+			if(node.getEdge().size()!=0){
+				newList.add(node);
+			}
+		}
+		return newList;
+	}
 
 	public static List<Node> getShortestPath(Node from, Node to) {
 		System.out.println("kuerzester Pfad:");
@@ -183,7 +195,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	public static void work(List<Connector> graph, Node start, List<Node> allPoints) {
 
-		points = allPoints;
+		points = removeEmptyNodes(allPoints);
 		
 		// preparation for all points
 		for (Node all : points) {
@@ -286,11 +298,11 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		createTestSzenario();
 		//work(originalGraph, A);
 		getShortestPath(A, I);
-	}
+	}*/
 
 	@Override
 	public void CalculateAlgorithm(ArrayList<Node> nodeList,
