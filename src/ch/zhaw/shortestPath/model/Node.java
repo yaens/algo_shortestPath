@@ -46,7 +46,7 @@ public class Node extends SurfaceCircle {
 		this.name = name;
 	}
 
-	String getName() {
+	public String getName() {
 		return name;
 	}
 

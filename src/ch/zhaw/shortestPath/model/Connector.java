@@ -1,9 +1,12 @@
 package ch.zhaw.shortestPath.model;
 
+import java.awt.Color;
+
 import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.ShapeAttributes;
+import gov.nasa.worldwind.render.SurfacePolyline;
 
 public class Connector extends Polyline{
 	double distance;
@@ -16,14 +19,22 @@ public class Connector extends Polyline{
 		this.distance = distance;
 	}
 	
+	public Connector(){
+		super();
+		this.color = Color.BLACK;
+		this.lineWidth = 2.0;
+		this.setFollowTerrain(true);
+	}
+	
 	public Connector(Node from){
 		super();
 		this.setFrom(from);
-		this.setFollowTerrain(true);
+		//this.setFollowTerrain(true);
         ShapeAttributes attrs = new BasicShapeAttributes();
         attrs.setOutlineMaterial(Material.RED);
         attrs.setOutlineWidth(2d);
         attrs.setOutlineWidth(2.0);
+        
        
 	}
 

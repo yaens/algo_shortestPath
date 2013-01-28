@@ -215,11 +215,12 @@ public class ConnectorBuilder extends AVListImpl {
 		}
 		
 		if(this.line == null){
-			this.line = new Connector(currentNode);
+			this.line = new Connector();
 			this.layer.addRenderable(this.line);
 		}
 		
 		if (this.positions.size() < 2) {
+			this.line.setFrom(currentNode);
 			this.positions.add((Position) currentNode.getCenter());
 			this.positions.add((Position) currentNode.getCenter());
 			this.line.setPositions(this.positions);
@@ -237,7 +238,7 @@ public class ConnectorBuilder extends AVListImpl {
 			anLayer.addAnnotation(anno);
 			
 			this.lines.add(this.line);
-			this.line = new Connector(currentNode);
+			this.line = new Connector();
 			this.layer.addRenderable(this.line);
 			this.positions.clear();
 			this.active = false;
@@ -273,6 +274,23 @@ public class ConnectorBuilder extends AVListImpl {
         ga.setAttributes(attrs);
 
         return ga;
+    }
+    
+    public void paintConnectors(List<Node> nodeList){
+    	for(Connector con : this.getAllConnector()){
+    		con.setColor(Color.BLACK);
+    	}
+    	
+		for(int i = 0;i<nodeList.size();i++){
+			Node currentNode = nodeList.get(i);
+			for(Connector edge: currentNode.getEdge()){
+				if(edge.getTo()==nodeList.get(i+1)){
+					edge.setColor(Color.GREEN);
+					this.wwd.redraw();
+				}
+			}
+		}
+
     }
 
 	private void replacePosition() {

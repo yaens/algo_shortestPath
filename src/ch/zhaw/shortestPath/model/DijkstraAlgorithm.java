@@ -145,9 +145,9 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		return output;
 	}
 
-	public static void getShortestPath(Node from, Node to) {
+	public static List<Node> getShortestPath(Node from, Node to) {
 		System.out.println("kuerzester Pfad:");
-
+		shortestPath.clear();
 		// add latest point to list
 		shortestPath.add(to);
 		System.out.println("Laenge:   " + to.getDistance() + "");
@@ -176,6 +176,8 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		for (Node point : shortestPath) {
 			System.out.println(point.getName());
 		}
+		
+		return shortestPath;
 
 	}
 
