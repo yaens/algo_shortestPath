@@ -281,7 +281,7 @@ public class ConnectorBuilder extends AVListImpl {
     		con.setColor(Color.BLACK);
     	}
     	
-		for(int i = 0;i<nodeList.size();i++){
+		for(int i = 0;i<nodeList.size()-1;i++){
 			Node currentNode = nodeList.get(i);
 			for(Connector edge: currentNode.getEdge()){
 				if(edge.getTo()==nodeList.get(i+1)){
