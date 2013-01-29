@@ -376,6 +376,7 @@ public class WorldWindView extends AVListImpl
             AnnotationLayer anLayer = new AnnotationLayer();
             anLayer.setName("Label Layer");
             layers.add(anLayer);
+            this.setSize(1200, 1000);
             this.getContentPane().add(new LinePanel(this.getWwd()), BorderLayout.WEST);
         }
     }
