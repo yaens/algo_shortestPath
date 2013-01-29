@@ -193,7 +193,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 
 	}
 
-	public static void work(List<Connector> graph, Node start, List<Node> allPoints) {
+	public static List<Node> work(List<Connector> graph, Node start, List<Node> allPoints) {
 
 		//points = removeEmptyNodes(allPoints);
 		
@@ -269,6 +269,8 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 				changePointToGreen(nextPoint);
 
 			}
+			
+			
 		}
 
 		// show all points, beforePoints and distance
@@ -296,6 +298,8 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 		for (Node green : greenPoints) {
 			System.out.println(green.getName());
 		}
+		
+		return greenPoints;
 
 	}
 

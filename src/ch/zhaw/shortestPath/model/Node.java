@@ -70,7 +70,7 @@ public class Node extends SurfaceCircle {
 		this.distanceToStart = distance;
 	}
 
-	double getDistance() {
+	public double getDistance() {
 		return distanceToStart;
 	}
 	

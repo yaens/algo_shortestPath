@@ -10,8 +10,11 @@ import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVListImpl;
+import gov.nasa.worldwind.event.SelectEvent;
+import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.SurfaceCircle;
+import gov.nasa.worldwind.util.BasicDragger;
 import gov.nasa.worldwind.layers.*;
 import gov.nasa.worldwindx.applications.worldwindow.util.Util;
 
@@ -70,7 +73,7 @@ public class WorldWindView extends AVListImpl
 
 		private JComboBox chooseEndPoint;
 
-        public LinePanel(WorldWindow wwd)
+        public LinePanel(final WorldWindow wwd)
         {
             super(new BorderLayout());
             
@@ -116,6 +119,19 @@ public class WorldWindView extends AVListImpl
                     fillNodePanel();
                 }
             });
+            
+            //Drag and drop
+            /*this.wwd.addSelectListener(new SelectListener()
+            {
+                private BasicDragger dragger = new BasicDragger(wwd);
+
+                public void selected(SelectEvent event)
+                {
+                    // Delegate dragging computations to a dragger.
+                    this.dragger.selected(event);
+                    
+                }
+            });*/
 
             this.addExtraLayer();
         }
@@ -165,9 +181,10 @@ public class WorldWindView extends AVListImpl
         		public void actionPerformed(ActionEvent actionEvent)
                 {
         			Node endPoint = (Node)chooseEndPoint.getSelectedItem();
-        			DijkstraAlgorithm.work(connectorBuilder.getAllConnector(), nodeBuilder.getNodes().get(0),nodeBuilder.getNodes());
+        			List<Node> allPoints = DijkstraAlgorithm.work(connectorBuilder.getAllConnector(), nodeBuilder.getNodes().get(0),nodeBuilder.getNodes());
         			List<Node> shortestPath = DijkstraAlgorithm.getShortestPath(nodeBuilder.getNodes().get(0), endPoint);
         			connectorBuilder.paintConnectors(shortestPath);
+        			updateNodePanel(allPoints);
                 }
         	});
         	
@@ -346,14 +363,30 @@ public class WorldWindView extends AVListImpl
                 if (i == this.pointLabels.length)
                     break;
                 String name = pos.getName();
-                String las = String.format("Lat %7.4f\u00B0", pos.getCenter().getLatitude().getDegrees());
-                String los = String.format("Lon %7.4f\u00B0", pos.getCenter().getLongitude().getDegrees());
-                pointNodeLabels[i++].setText("Name: "+ name);
+                pointNodeLabels[i++].setText(name);
                 
                 if(!this.comboEntrys.containsKey(pos.getName())&&!pos.getName().equals("A")){
                 	this.chooseEndPoint.addItem(pos);
                 	this.comboEntrys.put(pos.getName(), pos);
                 }
+                
+                
+            }
+            for (; i < this.pointNodeLabels.length; i++)
+            	pointNodeLabels[i++].setText("");
+        }
+        
+        private void updateNodePanel(List<Node> nodeList)
+        {
+            int i = 0;
+            for (Node pos : nodeList)
+            {
+                if (i == this.pointLabels.length)
+                    break;
+                String name = pos.getName();
+                pointNodeLabels[i++].setText(name + " to A: " + (int)pos.getDistance() + " m");
+                
+                
                 
                 
             }
