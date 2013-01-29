@@ -2,6 +2,8 @@ package ch.zhaw.shortestPath.model;
 
 import java.awt.Color;
 
+import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.Polyline;
@@ -9,11 +11,13 @@ import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.render.SurfacePolyline;
 import gov.nasa.worldwind.render.markers.BasicMarkerAttributes;
 import gov.nasa.worldwind.render.markers.BasicMarkerShape;
+import gov.nasa.worldwindx.examples.util.DirectedPath;
 
-public class Connector extends Polyline{
+public class Connector extends DirectedPath{
 	double distance;
 	Node from;
 	Node to;
+	private DirectedPath path;
 
 	Connector(Node from, Node to, double distance) {
 		this.from = from;
@@ -23,8 +27,16 @@ public class Connector extends Polyline{
 	
 	public Connector(){
 		super();
-		this.color = Color.BLACK;
-		this.lineWidth = 3.0;
+		//this.color = Color.BLACK;
+		//this.lineWidth = 3.0;
+		
+        ShapeAttributes attrs = new BasicShapeAttributes();
+        attrs.setOutlineMaterial(Material.BLACK);
+        attrs.setOutlineWidth(2d);
+        this.setAttributes(attrs);
+        this.setVisible(true);
+        this.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+        this.setPathType(AVKey.GREAT_CIRCLE);
 		this.setFollowTerrain(true);
 	}
 	
@@ -62,6 +74,14 @@ public class Connector extends Polyline{
 
 	public void setTo(Node to) {
 		this.to = to;
+	}
+
+	public DirectedPath getPath() {
+		return path;
+	}
+
+	public void setPath(DirectedPath path) {
+		this.path = path;
 	}
 
 }

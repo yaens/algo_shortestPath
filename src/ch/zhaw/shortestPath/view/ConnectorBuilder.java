@@ -17,16 +17,20 @@ import gov.nasa.worldwind.pick.PickedObject;
 import gov.nasa.worldwind.pick.PickedObjectList;
 import gov.nasa.worldwind.render.Annotation;
 import gov.nasa.worldwind.render.AnnotationAttributes;
+import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.Material;
+import gov.nasa.worldwind.render.Path;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.ScreenAnnotation;
+import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.render.SurfaceShape;
 import gov.nasa.worldwind.render.markers.BasicMarker;
 import gov.nasa.worldwind.render.markers.BasicMarkerAttributes;
 import gov.nasa.worldwind.render.markers.BasicMarkerShape;
 import gov.nasa.worldwind.render.markers.Marker;
 import gov.nasa.worldwind.util.measure.LengthMeasurer;
+import gov.nasa.worldwindx.examples.util.DirectedPath;
 import gov.nasa.worldwindx.examples.util.LabeledPath;
 
 import java.awt.Color;
@@ -116,14 +120,12 @@ public class ConnectorBuilder extends AVListImpl {
         geoAttr.setTextColor(Color.BLACK);
         geoAttr.setTextAlign(AVKey.CENTER);
         geoAttr.setDrawOffset(new Point(0, 5)); // centered just above
-        geoAttr.setEffect(AVKey.TEXT_EFFECT_OUTLINE);  // Black outline
+       // geoAttr.setEffect(AVKey.TEXT_EFFECT_OUTLINE);  // Black outline
         geoAttr.setBackgroundColor(Color.BLACK);
         
-		
 		this.lines = new ArrayList<Connector>();
-		this.layer = lineLayer != null ? lineLayer : new RenderableLayer();
+		this.layer = lineLayer;
 		//this.wwd.getModel().getLayers().add(this.layer);
-
 		this.wwd.getInputHandler().addMouseListener(new MouseAdapter() {
 
 			public void mouseClicked(MouseEvent mouseEvent) {
@@ -150,6 +152,34 @@ public class ConnectorBuilder extends AVListImpl {
 		});
 	}
 	
+	public Path testPath(List<Position> pathPosition){
+        // Create and set an attribute bundle.
+		this.layer.removeRenderable(line);
+        ShapeAttributes attrs = new BasicShapeAttributes();
+        attrs.setOutlineMaterial(Material.BLACK);
+        attrs.setOutlineWidth(2d);
+
+        // Create a path, set some of its properties and set its attributes.
+        ArrayList<Position> pathPositions = new ArrayList<Position>();
+        
+        for(Position pos : pathPosition)
+        {
+        	pathPositions.add(pos);
+        }
+
+        Path path = new DirectedPath(pathPositions);
+        
+        // To ensure that the arrowheads resize smoothly, refresh each time the path is drawn.
+        path.setAttributes(attrs);
+        path.setFollowTerrain(true);
+        path.setVisible(true);
+        path.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+        path.setPathType(AVKey.LINEAR);
+        this.layer.addRenderable(path);
+        this.wwd.redraw();
+        return path;
+	}
+	
 	public List<Connector> getAllConnector(){
 		return this.lines;
 	}
@@ -167,8 +197,7 @@ public class ConnectorBuilder extends AVListImpl {
 	 * Removes all positions from the polyline.
 	 */
 	public void clear() {
-		while (this.positions.size() > 0)
-			this.removePosition();
+
 	}
 
 	/**
@@ -217,16 +246,21 @@ public class ConnectorBuilder extends AVListImpl {
 		
 		if(this.line == null){
 			this.line = new Connector();
-			this.layer.addRenderable(this.line);
+			
 		}
 		
 		if (this.positions.size() < 2) {
 			this.line.setFrom(currentNode);
-			this.positions.add((Position) currentNode.getCenter());
-			this.positions.add((Position) currentNode.getCenter());
+			Position oldPosition = (Position)currentNode.getReferencePosition();
+			Position newPosition = new Position(oldPosition.latitude,oldPosition.longitude,oldPosition.getAltitude());
+			this.positions.add(newPosition);
+			this.positions.add(newPosition);
 			this.line.setPositions(this.positions);
+			this.layer.addRenderable(line);
 		}else if (this.positions.size() == 2) {
-			this.positions.set(1,(Position) currentNode.getCenter());
+			Position oldPosition = (Position)currentNode.getReferencePosition();
+			Position newPosition = new Position(oldPosition.latitude,oldPosition.longitude,oldPosition.getAltitude()+20.0d);
+			this.positions.set(1,newPosition);
 			this.line.setPositions(this.positions);
 			this.line.setTo(currentNode);
 			this.line.getFrom().setEdge(line);
@@ -237,11 +271,14 @@ public class ConnectorBuilder extends AVListImpl {
 			GlobeAnnotation anno = new GlobeAnnotation(Integer.toString((int) this.line.getDistance()/100),middle, this.geoAttr);
 			anno.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
 			anLayer.addAnnotation(anno);
-			//this.addMarker(middle);
 			this.lines.add(this.line);
-			this.line = new Connector();
+			Path newPath = this.testPath(this.positions);
+			//this.layer.addRenderable(this.line);
+			this.line.setPath((DirectedPath) newPath);
+			this.line = null;
 			//this.layer.addRenderables(lines);
-			this.layer.addRenderable(this.line);
+			//this.layer.addRenderable(this.line);
+			
 			this.positions.clear();
 			this.active = false;
 			
@@ -281,45 +318,40 @@ public class ConnectorBuilder extends AVListImpl {
     
     public void paintConnectors(List<Node> nodeList){
     	for(Connector con : this.getAllConnector()){
-    		con.setColor(Color.BLACK);
+            ShapeAttributes attrs = new BasicShapeAttributes();
+            attrs.setOutlineMaterial(Material.BLACK);
+            attrs.setOutlineWidth(2d);
+    		con.getPath().setAttributes(attrs);
     	}
     	
 		for(int i = 0;i<nodeList.size()-1;i++){
 			Node currentNode = nodeList.get(i);
 			for(Connector edge: currentNode.getEdge()){
 				if(edge.getTo()==nodeList.get(i+1)){
-					edge.setColor(Color.GREEN);
+		            ShapeAttributes attrs = new BasicShapeAttributes();
+		            attrs.setOutlineMaterial(Material.GREEN);
+		            attrs.setOutlineWidth(2d);
+		            edge.getPath().setAttributes(attrs);
 					this.wwd.redraw();
 				}
 			}
 		}
 
     }
-    
-    private void addMarker(Position pos){
-    	BasicMarkerAttributes markerAttributes = new BasicMarkerAttributes ( Material.BLACK, BasicMarkerShape.HEADING_ARROW, 6d, 10, 5);
-    	Marker marker = new BasicMarker(pos,markerAttributes);
-    	markers = new ArrayList<Marker>();
-    	//Position curPos = marker.getPosition();
-    	//Angle curLat = curPos.getLatitude();
-    	//Angle curLon = curPos.getLongitude();
-    	//double height = wwd.getModel().getGlobe().getElevation(c urLat, curLon);
-    	marker.setPosition(new Position(pos.latitude, pos.longitude, pos.getElevation()+100d));
-    	markers.add(marker);
-    	this.markerLayer.setMarkers(markers);
-    }
 
 	private void replacePosition() {
 		Position curPos = this.wwd.getCurrentPosition();
 		if (curPos == null)
 			return;
-
+		
+		Position newPosition = new Position(curPos.latitude,curPos.longitude,curPos.getAltitude());
+		
 		int index = this.positions.size() - 1;
 		if (index < 0)
 			index = 0;
 
 		Position currentLastPosition = this.positions.get(index);
-		this.positions.set(index, curPos);
+		this.positions.set(index, newPosition);
 		this.line.setPositions(this.positions);
 		this.firePropertyChange("LineBuilder.ReplacePosition",
 				currentLastPosition, curPos);
@@ -328,25 +360,10 @@ public class ConnectorBuilder extends AVListImpl {
 	
 	private Position calcMiddle(Position pos1,Position pos2){
 		
-		Angle newLatitude = (pos1.latitude.add(pos2.latitude).divide(2));
-		Angle newLongitude = (pos1.longitude.add(pos2.longitude).divide(2));
 		Angle newLatitude2 = Angle.fromDegrees((pos1.latitude.degrees + pos2.latitude.degrees)/2.0);
 		Angle newLongitude2 = Angle.fromDegrees((pos1.longitude.degrees + pos2.longitude.degrees)/2.0);
 		double height = wwd.getModel().getGlobe().getElevation(newLatitude2,newLongitude2);
 		
 		return new Position(newLatitude2,newLongitude2,height);
-	}
-
-	private void removePosition() {
-		if (this.positions.size() == 0)
-			return;
-
-		Position currentLastPosition = this.positions
-				.get(this.positions.size() - 1);
-		this.positions.remove(this.positions.size() - 1);
-		this.line.setPositions(this.positions);
-		this.firePropertyChange("LineBuilder.RemovePosition",
-				currentLastPosition, null);
-		this.wwd.redraw();
 	}
 }

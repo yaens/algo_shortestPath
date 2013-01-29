@@ -6,7 +6,9 @@ All Rights Reserved.
 */
 package ch.zhaw.shortestPath.view;
 
+import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.WorldWindow;
+import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.SurfaceCircle;
@@ -75,6 +77,9 @@ public class WorldWindView extends AVListImpl
             this.comboEntrys = new HashMap<String, Node>();
             
             this.wwd = wwd;
+            this.wwd.setValue(AVKey.INITIAL_LATITUDE, 49.06);
+            this.wwd.setValue(AVKey.INITIAL_LONGITUDE, -122.77);
+            this.wwd.setValue(AVKey.INITIAL_ALTITUDE, 22000);
             LayerList layers = this.wwd.getModel().getLayers();
             layers.add(new OSMMapnikLayer());
             
