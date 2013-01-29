@@ -83,9 +83,12 @@ public class WorldWindView extends AVListImpl
             nodeLayer.setName("Node Layer");
             RenderableLayer connectorLayer = new RenderableLayer();
             nodeLayer.setName("connector Layer");
-            
+    		MarkerLayer markerLayer = new MarkerLayer();
+            markerLayer.setName("marker Layer");
+    		
             layers.add(connectorLayer);
             layers.add(nodeLayer);
+            layers.add(markerLayer);
             ApplicationTemplate.insertBeforeCompass(wwd, connectorLayer);
             layers = this.wwd.getModel().getLayers();
             

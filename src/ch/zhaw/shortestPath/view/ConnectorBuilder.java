@@ -11,15 +11,21 @@ import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.layers.AnnotationLayer;
 import gov.nasa.worldwind.layers.LayerList;
+import gov.nasa.worldwind.layers.MarkerLayer;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.pick.PickedObject;
 import gov.nasa.worldwind.pick.PickedObjectList;
 import gov.nasa.worldwind.render.Annotation;
 import gov.nasa.worldwind.render.AnnotationAttributes;
 import gov.nasa.worldwind.render.GlobeAnnotation;
+import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.ScreenAnnotation;
 import gov.nasa.worldwind.render.SurfaceShape;
+import gov.nasa.worldwind.render.markers.BasicMarker;
+import gov.nasa.worldwind.render.markers.BasicMarkerAttributes;
+import gov.nasa.worldwind.render.markers.BasicMarkerShape;
+import gov.nasa.worldwind.render.markers.Marker;
 import gov.nasa.worldwind.util.measure.LengthMeasurer;
 import gov.nasa.worldwindx.examples.util.LabeledPath;
 
@@ -51,6 +57,8 @@ public class ConnectorBuilder extends AVListImpl {
 	private AnnotationAttributes defaultAttributes;
 	private AnnotationAttributes attrs;
 	private AnnotationAttributes geoAttr;
+	private MarkerLayer markerLayer;
+	private ArrayList<Marker> markers;
 
 	/**
 	 * Construct a new line builder using the specified polyline and layer and
@@ -73,6 +81,8 @@ public class ConnectorBuilder extends AVListImpl {
 		LayerList layers = this.wwd.getModel().getLayers();
 		this.anLayer = (AnnotationLayer) this.wwd.getModel().getLayers().getLayerByName("Label Layer");
 		this.measurer = new LengthMeasurer();
+		
+		markerLayer = (MarkerLayer) this.wwd.getModel().getLayers().getLayerByName("marker Layer");
 		
         defaultAttributes = new AnnotationAttributes();
         defaultAttributes.setCornerRadius(10);
@@ -227,12 +237,14 @@ public class ConnectorBuilder extends AVListImpl {
 			GlobeAnnotation anno = new GlobeAnnotation(Integer.toString((int) this.line.getDistance()/100),middle, this.geoAttr);
 			anno.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
 			anLayer.addAnnotation(anno);
-			
+			//this.addMarker(middle);
 			this.lines.add(this.line);
 			this.line = new Connector();
+			//this.layer.addRenderables(lines);
 			this.layer.addRenderable(this.line);
 			this.positions.clear();
 			this.active = false;
+			
 		}
 
 		
@@ -283,6 +295,19 @@ public class ConnectorBuilder extends AVListImpl {
 		}
 
     }
+    
+    private void addMarker(Position pos){
+    	BasicMarkerAttributes markerAttributes = new BasicMarkerAttributes ( Material.BLACK, BasicMarkerShape.HEADING_ARROW, 6d, 10, 5);
+    	Marker marker = new BasicMarker(pos,markerAttributes);
+    	markers = new ArrayList<Marker>();
+    	//Position curPos = marker.getPosition();
+    	//Angle curLat = curPos.getLatitude();
+    	//Angle curLon = curPos.getLongitude();
+    	//double height = wwd.getModel().getGlobe().getElevation(c urLat, curLon);
+    	marker.setPosition(new Position(pos.latitude, pos.longitude, pos.getElevation()+100d));
+    	markers.add(marker);
+    	this.markerLayer.setMarkers(markers);
+    }
 
 	private void replacePosition() {
 		Position curPos = this.wwd.getCurrentPosition();
@@ -307,8 +332,9 @@ public class ConnectorBuilder extends AVListImpl {
 		Angle newLongitude = (pos1.longitude.add(pos2.longitude).divide(2));
 		Angle newLatitude2 = Angle.fromDegrees((pos1.latitude.degrees + pos2.latitude.degrees)/2.0);
 		Angle newLongitude2 = Angle.fromDegrees((pos1.longitude.degrees + pos2.longitude.degrees)/2.0);
-
-		return new Position(newLatitude2,newLongitude2,1000);
+		double height = wwd.getModel().getGlobe().getElevation(newLatitude2,newLongitude2);
+		
+		return new Position(newLatitude2,newLongitude2,height);
 	}
 
 	private void removePosition() {
