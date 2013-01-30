@@ -181,6 +181,8 @@ public class WorldWindView extends AVListImpl
         	chooseRadius.addItem(10);
         	chooseRadius.addItem(100);
         	chooseRadius.addItem(1000);
+        	chooseRadius.addItem(10000);
+        	chooseRadius.addItem(100000);
         	algoPanel.add(buttonStartAlgoDijkstra);
         	algoPanel.add(buttonStartBellman);
         	algoPanel.add(endpointLabel);
@@ -228,6 +230,13 @@ public class WorldWindView extends AVListImpl
                 }
         	});
         	
+        	chooseRadius.addActionListener(new ActionListener(){
+        		public void actionPerformed(ActionEvent actionEvent)
+                {
+        			nodeBuilder.setNodeRadius(Integer.parseInt(chooseRadius.getSelectedItem().toString()));
+                }
+        	});
+        	
         	
         	buttonStartAlgoDijkstra.addActionListener(new ActionListener(){
         		public void actionPerformed(ActionEvent actionEvent)
@@ -248,7 +257,6 @@ public class WorldWindView extends AVListImpl
                     //lineBuilder.clear();
                     nodeBuilder.setArmed(true);
                     connectorBuilder.setArmed(false);
-                    nodeBuilder.setNodeRadius(Integer.parseInt(chooseRadius.getSelectedItem().toString()));
                     ((Component) wwd).setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 }
             });
