@@ -383,6 +383,10 @@ public class WorldWindView extends AVListImpl
         private void fillPointsPanel()
         {
             int i = 0;
+            
+				for(JLabel label : pointLabels){
+					label.setText(" ");
+				}
 
             for (Connector pos : connectorBuilder.getAllConnector())
             {
@@ -402,6 +406,10 @@ public class WorldWindView extends AVListImpl
         private void fillNodePanel()
         {
             int i = 0;
+            
+				for(JLabel label : pointNodeLabels){
+					label.setText(" ");
+				}
 
             for (Node pos : nodeBuilder.getNodes())
             {
