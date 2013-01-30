@@ -173,11 +173,12 @@ public class NodeBuilder extends AVListImpl
     /**
      * Removes all positions from the polyline.
      */
-    public void clear()
-    {
-        while (this.positions.size() > 0)
-            this.removePosition();
-    }
+	public void clear() {
+		this.anLayer.removeAllAnnotations();
+		this.layer.removeAllRenderables();
+		this.nodeList.clear();
+		this.currentLetter = 65;
+	}
 
     /**
      * Identifies whether the line builder is armed.

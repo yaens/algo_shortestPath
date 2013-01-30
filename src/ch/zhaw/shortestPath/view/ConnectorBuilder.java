@@ -197,7 +197,9 @@ public class ConnectorBuilder extends AVListImpl {
 	 * Removes all positions from the polyline.
 	 */
 	public void clear() {
-
+		this.anLayer.removeAllAnnotations();
+		this.layer.removeAllRenderables();
+		this.lines.clear();
 	}
 
 	/**
@@ -268,7 +270,10 @@ public class ConnectorBuilder extends AVListImpl {
 			measurer.setPositions((ArrayList<? extends Position>) line.getPositions());
 			this.line.setDistance(measurer.getLength(this.wwd.getModel().getGlobe()));
 			Position middle = this.calcMiddle(this.positions.get(0),this.positions.get(1));
-			GlobeAnnotation anno = new GlobeAnnotation(Integer.toString((int) this.line.getDistance()/100),middle, this.geoAttr);
+			
+			double meters = (double)Math.round((this.line.getDistance()/1000) * 100) / 100;
+			
+			GlobeAnnotation anno = new GlobeAnnotation(Double.toString(meters),middle, this.geoAttr);
 			anno.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
 			anLayer.addAnnotation(anno);
 			this.lines.add(this.line);
@@ -293,28 +298,15 @@ public class ConnectorBuilder extends AVListImpl {
 		this.wwd.redraw();
 	}
 	
-    protected ScreenAnnotation makeLabelAnnotation(String text)
-    {
-        ScreenAnnotation ga = new ScreenAnnotation(text, new Point());
-        ga.setPickEnabled(false);
-
-        AnnotationAttributes attrs = new AnnotationAttributes();
-        attrs.setAdjustWidthToText(AVKey.SIZE_FIT_TEXT);
-        attrs.setFrameShape(AVKey.SHAPE_RECTANGLE);
-        attrs.setDrawOffset(new Point(0, 10));
-        attrs.setLeaderGapWidth(5);
-        attrs.setTextColor(Color.BLACK);
-        attrs.setBackgroundColor(new Color(1f, 1f, 1f, 0.8f));
-        attrs.setCornerRadius(5);
-        attrs.setBorderColor(new Color(0xababab));
-        attrs.setFont(Font.decode("Arial-PLAIN-12"));
-        attrs.setTextAlign(AVKey.CENTER);
-        attrs.setInsets(new Insets(5, 5, 5, 5));
-
-        ga.setAttributes(attrs);
-
-        return ga;
-    }
+	public void paintConnectorsBlack(){
+    	for(Connector con : this.getAllConnector()){
+            ShapeAttributes attrs = new BasicShapeAttributes();
+            attrs.setOutlineMaterial(Material.BLACK);
+            attrs.setOutlineWidth(2d);
+    		con.getPath().setAttributes(attrs);
+    	}
+    	this.wwd.redraw();
+	}
     
     public void paintConnectors(List<Node> nodeList){
     	for(Connector con : this.getAllConnector()){

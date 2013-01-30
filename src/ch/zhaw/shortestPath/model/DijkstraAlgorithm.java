@@ -11,6 +11,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 	private static List<Node> redPoints = new ArrayList<Node>();
 	private static List<Node> greenPoints = new ArrayList<Node>();
 	private static List<Node> shortestPath = new ArrayList<Node>();
+	private static List<Connector> allConnectors = new ArrayList<Connector>();
 	private static Node A;
 	private static Node B;
 	private static Node C;
@@ -194,10 +195,12 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 	}
 
 	public static List<Node> work(List<Connector> graph, Node start, List<Node> allPoints) {
-
+		greenPoints.clear();
+		redPoints.clear();
+		//points.clear();
 		//points = removeEmptyNodes(allPoints);
-		
-		points = allPoints;
+		allConnectors = new ArrayList<Connector>(graph);
+		points = new ArrayList<Node>(allPoints);
 		// preparation for all points
 		for (Node all : points) {
 			all.setDistance(Integer.MAX_VALUE);
@@ -222,7 +225,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 				for (Node next : start.getNext()) {
 
 					// get distance from start to neighboors
-					double distanceStartToNext = getDistanceFromTo(start, next,graph);
+					double distanceStartToNext = getDistanceFromTo(start, next,allConnectors);
 
 					// set distance
 					next.setDistance(distanceStartToNext);
@@ -253,7 +256,7 @@ public class DijkstraAlgorithm implements IPathAlgorithm {
 				changePointToRed(next);
 
 				// get distance between the neighboors
-				double distanceNextPointToNext = getDistanceFromTo(nextPoint, next,graph);
+				double distanceNextPointToNext = getDistanceFromTo(nextPoint, next,allConnectors);
 
 				// count the new distance
 				double tmpDistance = (nextPoint.getDistance() + distanceNextPointToNext);

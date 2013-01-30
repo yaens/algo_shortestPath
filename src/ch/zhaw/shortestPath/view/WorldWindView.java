@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.CompoundBorder;
@@ -72,6 +74,10 @@ public class WorldWindView extends AVListImpl
 		private JButton buttonStartBellman;
 
 		private JComboBox chooseEndPoint;
+
+		private JButton buttonResetAlgo;
+
+		private JButton buttonCleanAlgo;
 
         public LinePanel(final WorldWindow wwd)
         {
@@ -161,20 +167,57 @@ public class WorldWindView extends AVListImpl
 
         private void makePanel(Dimension size)
         {
-        	JPanel algoPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        	JPanel algoPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         	buttonStartAlgoDijkstra = new JButton("Dijkstra");
         	buttonStartBellman = new JButton("Bellman");
         	chooseEndPoint = new JComboBox();
-        	JLabel endpointLabel = new JLabel("Endpoint");
+        	JLabel endpointLabel = new JLabel("    Endpoint: ");
+        	buttonResetAlgo = new JButton("Reset");
+        	buttonCleanAlgo = new JButton("Clean");
         	algoPanel.add(buttonStartAlgoDijkstra);
         	algoPanel.add(buttonStartBellman);
         	algoPanel.add(endpointLabel);
         	algoPanel.add(chooseEndPoint);
+        	algoPanel.add(buttonResetAlgo);
+        	algoPanel.add(buttonCleanAlgo);
         	
         	
         	JPanel buttonPanelNode = new JPanel(new GridLayout(1, 2, 5, 5));
         	newNodeButton = new JButton("new Node");
         	endNodeButton = new JButton("Stop");
+        	
+        	buttonResetAlgo.addActionListener(new ActionListener(){
+        		public void actionPerformed(ActionEvent actionEvent)
+                {
+        			fillNodePanel();
+        			connectorBuilder.paintConnectorsBlack();
+                }
+        	});
+        	
+        	buttonCleanAlgo.addActionListener(new ActionListener(){
+        		public void actionPerformed(ActionEvent actionEvent)
+                {
+        			final JOptionPane optionPane = new JOptionPane(
+        				    "delete graph?",
+        				    JOptionPane.QUESTION_MESSAGE,
+        				    JOptionPane.YES_NO_OPTION);
+        			
+        			if(JOptionPane.showConfirmDialog(null,"delete?")==JOptionPane.OK_OPTION){
+        				nodeBuilder.clear();
+        				connectorBuilder.clear();
+        				for(JLabel label : pointNodeLabels){
+        					label.setText(" ");
+        				}
+        				for(JLabel label : pointLabels){
+        					label.setText(" ");
+        				}
+        				
+        				chooseEndPoint.removeAllItems();
+        				comboEntrys.clear();
+        			}
+        			
+                }
+        	});
         	
         	
         	buttonStartAlgoDijkstra.addActionListener(new ActionListener(){
@@ -229,7 +272,7 @@ public class WorldWindView extends AVListImpl
                 public void actionPerformed(ActionEvent actionEvent)
                 {
                 	
-                	connectorBuilder.clear();
+        
                     nodeBuilder.setArmed(false);
                     connectorBuilder.setArmed(true);
                     pauseButton.setText("Pause");
@@ -288,7 +331,7 @@ public class WorldWindView extends AVListImpl
             // Put the point panel in a scroll bar.
             JScrollPane scrollPane = new JScrollPane(dummyPanel);
             scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-            scrollPane.setPreferredSize(new Dimension(100, 190));
+            scrollPane.setPreferredSize(new Dimension(100, 250));
             
             ///////
             JPanel pointNodePanel = new JPanel(new GridLayout(0, 1, 0, 10));
@@ -308,7 +351,7 @@ public class WorldWindView extends AVListImpl
             // Put the point panel in a scroll bar.
             JScrollPane scrollNodePane = new JScrollPane(dummyNodePanel);
             scrollNodePane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-            scrollNodePane.setPreferredSize(new Dimension(100, 190));
+            scrollNodePane.setPreferredSize(new Dimension(100, 250));
             
             //algoPanel.setPreferredSize(new Dimension(100, 25));
             ////////////////
@@ -340,6 +383,7 @@ public class WorldWindView extends AVListImpl
         private void fillPointsPanel()
         {
             int i = 0;
+
             for (Connector pos : connectorBuilder.getAllConnector())
             {
                 if (i == this.pointLabels.length)
@@ -358,9 +402,10 @@ public class WorldWindView extends AVListImpl
         private void fillNodePanel()
         {
             int i = 0;
+
             for (Node pos : nodeBuilder.getNodes())
             {
-                if (i == this.pointLabels.length)
+                if (i == this.pointNodeLabels.length)
                     break;
                 String name = pos.getName();
                 pointNodeLabels[i++].setText(name);
@@ -379,16 +424,16 @@ public class WorldWindView extends AVListImpl
         private void updateNodePanel(List<Node> nodeList)
         {
             int i = 0;
+            for (; i < this.pointNodeLabels.length; i++)
+            	pointNodeLabels[i++].setText("");
+            
+            i=0;
             for (Node pos : nodeList)
             {
                 if (i == this.pointLabels.length)
                     break;
                 String name = pos.getName();
-                pointNodeLabels[i++].setText(name + " to A: " + (int)pos.getDistance() + " m");
-                
-                
-                
-                
+                pointNodeLabels[i++].setText(name +" to A: " + (int)pos.getDistance() + " m");
             }
             for (; i < this.pointNodeLabels.length; i++)
             	pointNodeLabels[i++].setText("");
