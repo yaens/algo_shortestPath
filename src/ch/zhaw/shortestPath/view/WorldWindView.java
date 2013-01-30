@@ -78,6 +78,8 @@ public class WorldWindView extends AVListImpl
 		private JButton buttonResetAlgo;
 
 		private JButton buttonCleanAlgo;
+		
+		private JComboBox chooseRadius;
 
         public LinePanel(final WorldWindow wwd)
         {
@@ -167,19 +169,26 @@ public class WorldWindView extends AVListImpl
 
         private void makePanel(Dimension size)
         {
-        	JPanel algoPanel = new JPanel(new GridLayout(3, 2, 5, 5));
+        	JPanel algoPanel = new JPanel(new GridLayout(4, 2, 5, 5));
         	buttonStartAlgoDijkstra = new JButton("Dijkstra");
         	buttonStartBellman = new JButton("Bellman");
         	chooseEndPoint = new JComboBox();
-        	JLabel endpointLabel = new JLabel("    Endpoint: ");
+        	JLabel endpointLabel = new JLabel("       Endpoint: ");
         	buttonResetAlgo = new JButton("Reset");
         	buttonCleanAlgo = new JButton("Clean");
+        	JLabel nodeRadiusLabel = new JLabel("     Node radius: ");
+        	chooseRadius = new JComboBox();
+        	chooseRadius.addItem(10);
+        	chooseRadius.addItem(100);
+        	chooseRadius.addItem(1000);
         	algoPanel.add(buttonStartAlgoDijkstra);
         	algoPanel.add(buttonStartBellman);
         	algoPanel.add(endpointLabel);
         	algoPanel.add(chooseEndPoint);
         	algoPanel.add(buttonResetAlgo);
         	algoPanel.add(buttonCleanAlgo);
+        	algoPanel.add(nodeRadiusLabel);
+        	algoPanel.add(chooseRadius);
         	
         	
         	JPanel buttonPanelNode = new JPanel(new GridLayout(1, 2, 5, 5));
@@ -227,7 +236,7 @@ public class WorldWindView extends AVListImpl
         			List<Node> allPoints = DijkstraAlgorithm.work(connectorBuilder.getAllConnector(), nodeBuilder.getNodes().get(0),nodeBuilder.getNodes());
         			List<Node> shortestPath = DijkstraAlgorithm.getShortestPath(nodeBuilder.getNodes().get(0), endPoint);
         			connectorBuilder.paintConnectors(shortestPath);
-        			updateNodePanel(allPoints);
+        			//updateNodePanel(allPoints);
                 }
         	});
         	
@@ -239,10 +248,7 @@ public class WorldWindView extends AVListImpl
                     //lineBuilder.clear();
                     nodeBuilder.setArmed(true);
                     connectorBuilder.setArmed(false);
-                    //pauseButton.setText("Pause");
-                    //pauseButton.setEnabled(true);
-                    //endButton.setEnabled(true);
-                    //newButton.setEnabled(false);
+                    nodeBuilder.setNodeRadius(Integer.parseInt(chooseRadius.getSelectedItem().toString()));
                     ((Component) wwd).setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 }
             });
@@ -317,7 +323,7 @@ public class WorldWindView extends AVListImpl
             JPanel pointPanel = new JPanel(new GridLayout(0, 1, 0, 10));
             pointPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-            this.pointLabels = new JLabel[30];
+            this.pointLabels = new JLabel[50];
             for (int i = 0; i < this.pointLabels.length; i++)
             {
                 this.pointLabels[i] = new JLabel("");
@@ -337,7 +343,7 @@ public class WorldWindView extends AVListImpl
             JPanel pointNodePanel = new JPanel(new GridLayout(0, 1, 0, 10));
             pointNodePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-            this.pointNodeLabels = new JLabel[20];
+            this.pointNodeLabels = new JLabel[50];
             for (int i = 0; i < this.pointNodeLabels.length; i++)
             {
                 this.pointNodeLabels[i] = new JLabel("");
@@ -462,7 +468,8 @@ public class WorldWindView extends AVListImpl
             AnnotationLayer anLayer = new AnnotationLayer();
             anLayer.setName("Label Layer");
             layers.add(anLayer);
-            this.setSize(1200, 1000);
+            this.setSize(850, 800);
+            Dimension d = this.getSize();
             this.getContentPane().add(new LinePanel(this.getWwd()), BorderLayout.WEST);
         }
     }

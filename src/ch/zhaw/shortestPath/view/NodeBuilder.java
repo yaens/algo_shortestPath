@@ -43,6 +43,7 @@ public class NodeBuilder extends AVListImpl
 	private AnnotationLayer anLayer;
 	private int currentLetter;
 	private AnnotationAttributes geoAttr;
+	private int radius;
 	
     /**
      * Construct a new line builder using the specified polyline and layer and drawing events from the specified world
@@ -211,7 +212,7 @@ public class NodeBuilder extends AVListImpl
 
         this.positions.add(curPos);
         //this.line.setPositions(this.positions);
-        this.node = new Node(curPos, 100);
+        this.node = new Node(curPos, this.radius);
         Color color = new Color(0f, 0f, 1f);
         ShapeAttributes attr = new BasicShapeAttributes();
         attr.setDrawOutline(true);
@@ -263,5 +264,9 @@ public class NodeBuilder extends AVListImpl
         //this.line.setPositions(this.positions);
         this.firePropertyChange("LineBuilder.RemovePosition", currentLastPosition, null);
         this.wwd.redraw();
+    }
+    
+    public void setNodeRadius(int rad){
+    	this.radius = rad;
     }
 }
